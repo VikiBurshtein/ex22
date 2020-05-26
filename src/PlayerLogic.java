@@ -1,9 +1,7 @@
-
 import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
 
-import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
@@ -19,51 +17,40 @@ import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
-
-public class LightDemo extends KeyAdapter implements GLEventListener {
-    private float xrot = 0;        // X Rotation ( NEW )
-    private float yrot = 0;        // Y Rotation ( NEW )
-    private float zrot = 0;        // Z Rotation ( NEW )
+public class PlayerLogic extends KeyAdapter implements GLEventListener {
+    private float xrot;        // X Rotation ( NEW )
+    private float yrot;        // Y Rotation ( NEW )
+    private float zrot;        // Z Rotation ( NEW )
+    private float eyeX,eyeY,eyeZ,cX,cY,cZ,upX,upY,upZ;
     private Texture texture;
+    private boolean iIsPressed, kIsPressed, lIsPressed, jIsPressed, oIsPressed, uIsPressed;
+    private boolean wIsPressed, sIsPressed, dIsPressed, aIsPressed, eIsPressed, qIsPressed;
 
     static GLU glu = new GLU();
     static GLCanvas canvas = new GLCanvas();
     static Frame frame = new Frame("Jogl 3D Shape/Rotation");
     static Animator animator = new Animator(canvas);
 
-    public void display(GLAutoDrawable drawable) {
-        float	material[] = {0.8f,0.8f,0.8f,1.0f};
-        float	position0[] = {10f,0f,-5f,1.0f};		// red light on the right side (light 0)
-        float	position1[] = {-10f,0f,-5f,1.0f};	// blue light on the left side (light 1)
-
-        final GL2 gl = drawable.getGL().getGL2();
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+    public void display(GLAutoDrawable gLDrawable) {
+        final GL2 gl = gLDrawable.getGL().getGL2(); //get the GL object
+        gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT); //clear the depth buffer and the color buffer
         gl.glLoadIdentity();  // Reset The View
-
-        glu.gluLookAt(0, 0, 0, 0, 0, -1, 0, 1, 0);
-
-        // Light
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position0, 0);
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, position1, 0);
-
-        gl.glPushMatrix();
         gl.glTranslatef(0.0f, 0.0f, -5.0f);
+        glu.gluLookAt(eyeX,eyeY,eyeZ,cX,cY,cZ,upX,upY,upZ); //set the camera view
+
 
         gl.glRotatef(xrot, 1.0f, 0.0f, 0.0f);
         gl.glRotatef(yrot, 0.0f, 1.0f, 0.0f);
         gl.glRotatef(zrot, 0.0f, 0.0f, 1.0f);
 
-        gl.glTexParameteri ( GL.GL_TEXTURE_2D,GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT );
-        gl.glTexParameteri( GL.GL_TEXTURE_2D,GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT );
-//        gl.glTexParameteri( GL.GL_TEXTURE_2D,GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP );
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
         texture.bind(gl);
 
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
         gl.glBegin(GL2.GL_QUADS);
         // Front Face
-        gl.glNormal3f(0,0,1);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex3f(-1.0f, -1.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 0.0f);// give the texture coordinates to bind
+        gl.glVertex3f(-1.0f, -1.0f, 1.0f);// the vertex
         gl.glTexCoord2f(2f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, 1.0f);
         gl.glTexCoord2f(2f, 1.0f);
@@ -71,7 +58,6 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(0.0f, 1.0f);
         gl.glVertex3f(-1.0f, 1.0f, 1.0f);
         // Back Face
-        gl.glNormal3f(0,0,-1);
         gl.glTexCoord2f(1.0f, 0.0f);
         gl.glVertex3f(-1.0f, -1.0f, -1.0f);
         gl.glTexCoord2f(1.0f, 1.0f);
@@ -81,7 +67,6 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, -1.0f);
         // Top Face
-        gl.glNormal3f(0,1,0);
         gl.glTexCoord2f(0.0f, 1.0f);
         gl.glVertex3f(-1.0f, 1.0f, -1.0f);
         gl.glTexCoord2f(0.0f, 0.0f);
@@ -91,7 +76,6 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(1.0f, 1.0f);
         gl.glVertex3f(1.0f, 1.0f, -1.0f);
         // Bottom Face
-        gl.glNormal3f(0,-1,0);
         gl.glTexCoord2f(1.0f, 1.0f);
         gl.glVertex3f(-1.0f, -1.0f, -1.0f);
         gl.glTexCoord2f(0.0f, 1.0f);
@@ -101,7 +85,6 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(1.0f, 0.0f);
         gl.glVertex3f(-1.0f, -1.0f, 1.0f);
         // Right face
-        gl.glNormal3f(1,0,0);
         gl.glTexCoord2f(1.0f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, -1.0f);
         gl.glTexCoord2f(1.0f, 1.0f);
@@ -111,7 +94,6 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, 1.0f);
         // Left Face
-        gl.glNormal3f(-1,0,0);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(-1.0f, -1.0f, -1.0f);
         gl.glTexCoord2f(1.0f, 0.0f);
@@ -121,14 +103,48 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(0.0f, 1.0f);
         gl.glVertex3f(-1.0f, 1.0f, -1.0f);
         gl.glEnd();
-        gl.glPopMatrix();
 
-        //xrot += 0.03f;
-        yrot += 0.05f;
-        //zrot += 0.04f;
+        //הרמת המבט כלפי מעלה (ציר סיבוב X)
+        if (iIsPressed) {
+            //eyeX += 0.01f;
+        }
+        //הורדת המבט כלפי מטה (ציר סיבוב X)
+        if (kIsPressed) {
+            //eyeX -= 0.01f;
+        }
+        //הזזת המבט ימינה (ציר סיבוב Y)
+        if (lIsPressed) {
+        }
+        //הזזת המבט שמאלה (ציר סיבוב Y)
+        if (jIsPressed) {
+        }
+        //הטיית המבט ימינה (ציר סיבוב Z)
+        if (oIsPressed) {
+        }
+        //הטיית המבט שמאלה (ציר סיבוב Z)
+        if (uIsPressed) {
+        }
+        //תנועה קדימה בכיוון המבט
+        if (wIsPressed) {
+        }
+        //תנועה אחורה בכיוון המבט
+        if (sIsPressed) {
+        }
+        //תנועה ימינה תוך כדי שמירה על כיוון המבט
+        if (dIsPressed) {
+        }
+        //תנועה שמאלה תוך כדי שמירה על כיוון המבט
+        if (aIsPressed) {
+        }
+        //תנועה למעלה תוך כדי שמירה על כיוון המבט
+        if (eIsPressed) {
+        }
+        //תנועה למטה תוך כדי שמירה על כיוון המבט
+        if (qIsPressed) {
+        }
     }
 
-    public void displayChanged(GLAutoDrawable drawable,
+    public void displayChanged(GLAutoDrawable gLDrawable,
                                boolean modeChanged, boolean deviceChanged) {
     }
 
@@ -141,38 +157,16 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
         gl.glDepthFunc(GL2.GL_LEQUAL);               // The Type Of Depth Testing To Do
         // Really Nice Perspective Calculations
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
-
-        // Texture
-        gl.glEnable(GL.GL_TEXTURE_2D);
+        gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
-            String filename="C:\\Users\\vikib\\OneDrive\\Documents\\Uni\\GRAPHICS\\ex22\\src/Picture1.jpg"; // the FileName to open
-            texture=TextureIO.newTexture(new File( filename ),true);
+            String filename = "C:\\Users\\vikib\\OneDrive\\Documents\\Uni\\GRAPHICS\\ex22\\src/Picture1.jpg"; // the FileName to open
+            texture = TextureIO.newTexture(new File(filename), true);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-
-        // Light
-        float	ambient[] = {0.1f,0.1f,0.1f,1.0f};
-        float	diffuse0[] = {1f,0f,0f,1.0f};
-        float	diffuse1[] = {0f,0f,1f,1.0f};
-
-
-        gl.glShadeModel(GL2.GL_SMOOTH);
-
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse0, 0);
-        gl.glEnable(GL2.GL_LIGHT0);
-
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, ambient, 0);
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, diffuse1, 0);
-        gl.glEnable(GL2.GL_LIGHT1);
-
-        gl.glEnable(GL2.GL_LIGHTING);
-
-        // Keyboard
         if (drawable instanceof Window) {
             Window window = (Window) drawable;
             window.addKeyListener(this);
@@ -180,15 +174,36 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
             java.awt.Component comp = (java.awt.Component) drawable;
             new AWTKeyAdapter(this, drawable).addTo(comp);
         }
+        iIsPressed = false;
+        kIsPressed = false;
+        lIsPressed = false;
+        jIsPressed = false;
+        oIsPressed = false;
+        uIsPressed = false;
+        wIsPressed = false;
+        sIsPressed = false;
+        dIsPressed = false;
+        aIsPressed = false;
+        eIsPressed = false;
+        qIsPressed = false;
+        eyeX = 0.5f;
+        eyeY = 0.5f;
+        eyeZ = 0.5f;
+        cX = 0.5f;
+        cY = 0.5f;
+        cZ = 0.5f;
+        upX = 0.5f;
+        upY = 0.5f;
+        upZ = 0.5f;
     }
 
     public void reshape(GLAutoDrawable drawable, int x,
                         int y, int width, int height) {
         GL2 gl = drawable.getGL().getGL2();
-        if(height <= 0) {
+        if (height <= 0) {
             height = 1;
         }
-        float h = (float)width / (float)height;
+        float h = (float) width / (float) height;
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
         glu.gluPerspective(50.0f, h, 1.0, 1000.0);
@@ -197,29 +212,107 @@ public class LightDemo extends KeyAdapter implements GLEventListener {
     }
 
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            exit();
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_ESCAPE:
+                exit();
+                break;
+            case KeyEvent.VK_I:
+                iIsPressed = true;
+                break;
+            case KeyEvent.VK_K:
+                kIsPressed = true;
+                break;
+            case KeyEvent.VK_L:
+                lIsPressed = true;
+                break;
+            case KeyEvent.VK_J:
+                jIsPressed = true;
+                break;
+            case KeyEvent.VK_O:
+                oIsPressed = true;
+                break;
+            case KeyEvent.VK_U:
+                uIsPressed = true;
+                break;
+            case KeyEvent.VK_W:
+                wIsPressed = true;
+                break;
+            case KeyEvent.VK_S:
+                sIsPressed = true;
+                break;
+            case KeyEvent.VK_D:
+                dIsPressed = true;
+                break;
+            case KeyEvent.VK_A:
+                aIsPressed = true;
+                break;
+            case KeyEvent.VK_E:
+                eIsPressed = true;
+                break;
+            case KeyEvent.VK_Q:
+                qIsPressed = true;
+                break;
+            default:
+                break;
         }
     }
 
     public void keyReleased(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_I:
+                iIsPressed = false;
+                break;
+            case KeyEvent.VK_K:
+                kIsPressed = false;
+                break;
+            case KeyEvent.VK_L:
+                lIsPressed = false;
+                break;
+            case KeyEvent.VK_J:
+                jIsPressed = false;
+                break;
+            case KeyEvent.VK_O:
+                oIsPressed = false;
+                break;
+            case KeyEvent.VK_U:
+                uIsPressed = false;
+                break;
+            case KeyEvent.VK_W:
+                wIsPressed = false;
+                break;
+            case KeyEvent.VK_S:
+                sIsPressed = false;
+                break;
+            case KeyEvent.VK_D:
+                dIsPressed = false;
+                break;
+            case KeyEvent.VK_A:
+                aIsPressed = false;
+                break;
+            case KeyEvent.VK_E:
+                eIsPressed = false;
+                break;
+            case KeyEvent.VK_Q:
+                qIsPressed = false;
+                break;
+            default:
+                break;
+        }
     }
 
     public void keyTyped(KeyEvent e) {
     }
 
-    public static void exit(){
+    public static void exit() {
         animator.stop();
         frame.dispose();
         System.exit(0);
     }
 
     public static void main(String[] args) {
-        canvas.addGLEventListener(new LightDemo());
+        canvas.addGLEventListener(new Room());
         frame.add(canvas);
-        frame.setSize(1280, 720);
-//		frame.setUndecorated(true);
-//		frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+        frame.setSize(2000, 1000);
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent e) {
                 // Run this on another thread than the AWT event queue to
