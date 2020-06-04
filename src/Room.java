@@ -1,3 +1,4 @@
+//names ids
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyAdapter;
 import com.jogamp.newt.event.KeyEvent;
@@ -22,28 +23,26 @@ public class Room extends KeyAdapter implements GLEventListener {
 
     private Texture cube1texture, cube2texture, cube3texture, cube4texture, cube5texture;
     private Texture wallsTexture;
+    PlayerLogic player;
+    float stepQuanity = 0.2f;
+    float camAngle = 2;
     private static GLU glu = new GLU();
     private static GLCanvas canvas = new GLCanvas();
     private static Frame frame = new Frame("Room");
     private static Animator animator = new Animator(canvas);
-    private float eyeX = -10;
-    private float eyeY = -40;
-    private float eyeZ = 0;
-    private float refX = 0;
-    private float refY = -60;
-    private float refZ = 0;
-    private boolean upIsPressed, downIsPressed, rightIsPressed, leftIsPressed, inIsPressed, outIsPressed;
+    private boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
+        IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
     private float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
     private float	position0[] = {10f,0f,-5f,1.0f};	// red light on the cubes from the top
 
     public void display(GLAutoDrawable gLDrawable) {
         final GL2 gl = gLDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+        player.setLookAtPoint();
         gl.glLoadIdentity();  // Reset The View
-        glu.gluLookAt(eyeX, eyeY, eyeZ,//Specifies the position of the eye point.
-                refX, refY, refZ, //Specifies the position of the reference point.
-                0, 1, 0); //Specifies the direction of the up vector.
-
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
         // Light
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position0, 0);
 
@@ -474,35 +473,10 @@ public class Room extends KeyAdapter implements GLEventListener {
         gl.glPopMatrix();
 
 
-
-
         gl.glEnd();
         gl.glFlush();
 
-        if (upIsPressed) {
-            eyeY-= 0.1f;
-        }
-        if (downIsPressed) {
-            eyeY+= 0.1f;
-        }
-        if (leftIsPressed) {
-            refX-= 0.1f;
-            refZ-= 0.1f;
-        }
-        if (rightIsPressed) {
-            refX+= 0.1f;
-            refZ+= 0.1f;
-        }
-        if (inIsPressed) {
-            eyeX -= 0.5f;
-            eyeY -= 0.5f;
-            eyeZ -= 0.5f;
-        }
-        if (outIsPressed) {
-            eyeX += 0.5f;
-            eyeY += 0.5f;
-            eyeZ += 0.5f;
-        }
+
     }
 
     public void displayChanged(GLAutoDrawable gLDrawable,
@@ -558,13 +532,20 @@ public class Room extends KeyAdapter implements GLEventListener {
         gl.glEnable(GL2.GL_LIGHT0);
 
         gl.glEnable(GL2.GL_LIGHTING);
+        player = new PlayerLogic(stepQuanity, camAngle);
 
-        upIsPressed = false;
-        downIsPressed = false;
-        leftIsPressed = false;
-        rightIsPressed = false;
-        inIsPressed = false;
-        outIsPressed = false;
+        WIsPressed = false;
+        SIsPressed = false;
+        AIsPressed = false;
+        DIsPressed = false;
+        EIsPressed = false;
+        QIsPressed = false;
+        IIsPressed = false;
+        KIsPressed = false;
+        LIsPressed = false;
+        JIsPressed = false;
+        OIsPressed = false;
+        UIsPressed = false;
     }
 
 
@@ -587,23 +568,55 @@ public class Room extends KeyAdapter implements GLEventListener {
             case KeyEvent.VK_ESCAPE:
                 exit();
                 break;
-            case KeyEvent.VK_UP:
-                upIsPressed = true;
-                break;
-            case KeyEvent.VK_DOWN:
-                downIsPressed = true;
-                break;
-            case KeyEvent.VK_LEFT:
-                leftIsPressed = true;
-                break;
-            case KeyEvent.VK_RIGHT:
-                rightIsPressed = true;
-                break;
+            //player movement:
             case KeyEvent.VK_W:
-                inIsPressed = true;
+                WIsPressed = true;
+                player.move(0,0,1);
+                break;
+            case KeyEvent.VK_S:
+                SIsPressed = true;
+                player.move(0,0,-1);
+                break;
+            case KeyEvent.VK_D:
+                DIsPressed = true;
+                player.move(1,0,0);
+                break;
+            case KeyEvent.VK_A:
+                AIsPressed = true;
+                player.move(-1,0,0);
                 break;
             case KeyEvent.VK_E:
-                outIsPressed = true;
+                EIsPressed = true;
+                player.move(0,1,0);
+                break;
+            case KeyEvent.VK_Q:
+                QIsPressed = true;
+                player.move(0,-1,0);
+                break;
+            //camera movement:
+            case KeyEvent.VK_I:
+                IIsPressed = true;
+                player.camMove(1,"X");
+                break;
+            case KeyEvent.VK_K:
+                KIsPressed = true;
+                player.camMove(-1,"X");
+                break;
+            case KeyEvent.VK_L:
+                LIsPressed = true;
+                player.camMove(-1,"Y");
+                break;
+            case KeyEvent.VK_J:
+                JIsPressed = true;
+                player.camMove(1,"Y");
+                break;
+            case KeyEvent.VK_O:
+                OIsPressed = true;
+                player.camMove(-1,"Z");
+                break;
+            case KeyEvent.VK_U:
+                UIsPressed = true;
+                player.camMove(1,"Z");
                 break;
             default:
                 break;
@@ -613,23 +626,54 @@ public class Room extends KeyAdapter implements GLEventListener {
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                upIsPressed = false;
+                WIsPressed = false;
                 break;
             case KeyEvent.VK_DOWN:
-                downIsPressed = false;
+                SIsPressed = false;
                 break;
             case KeyEvent.VK_LEFT:
-                leftIsPressed = false;
+                AIsPressed = false;
                 break;
             case KeyEvent.VK_RIGHT:
-                rightIsPressed = false;
+                DIsPressed = false;
                 break;
+            //player movement:
             case KeyEvent.VK_W:
-                inIsPressed = false;
+                WIsPressed = false;
+                break;
+            case KeyEvent.VK_S:
+                SIsPressed = false;
+                break;
+            case KeyEvent.VK_D:
+                DIsPressed = false;
+                break;
+            case KeyEvent.VK_A:
+                AIsPressed = false;
                 break;
             case KeyEvent.VK_E:
-                outIsPressed = false;
+                EIsPressed = false;
                 break;
+            case KeyEvent.VK_Q:
+                QIsPressed = false;
+                break;
+            //camera movement:
+            case KeyEvent.VK_I:
+                IIsPressed = false;
+                break;
+            case KeyEvent.VK_K:
+                KIsPressed = false;
+                break;
+            case KeyEvent.VK_L:
+                LIsPressed = false;
+                break;
+            case KeyEvent.VK_J:
+                JIsPressed = false;
+                break;
+            case KeyEvent.VK_O:
+                OIsPressed = false;
+                break;
+            case KeyEvent.VK_U:
+                UIsPressed = false;
             default:
                 break;
         }
