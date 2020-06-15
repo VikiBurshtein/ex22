@@ -5,8 +5,13 @@
       <root url="jar://$USER_HOME$/Downloads/jogl2/gluegen.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/jogl2/jogl-all-natives-windows-amd64.jar!/" />
       <root url="jar://$USER_HOME$/Downloads/jogl2/jogl-all.jar!/" />
+      <root url="file://$USER_HOME$/Desktop/jogl2 (3)" />
     </CLASSES>
     <JAVADOC />
+    <NATIVE>
+      <root url="file://$USER_HOME$/Desktop/jogl2 (3)" />
+    </NATIVE>
     <SOURCES />
+    <jarDirectory url="file://$USER_HOME$/Desktop/jogl2 (3)" recursive="false" />
   </library>
 </component>

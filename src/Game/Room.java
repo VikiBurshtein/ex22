@@ -1,4 +1,5 @@
-//names ids
+package Game;//names ids
+/** to be deleted !!!!!!!!!!!!!!!*/
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyAdapter;
 import com.jogamp.newt.event.KeyEvent;
@@ -17,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 
 import java.awt.Frame;
-import java.nio.FloatBuffer;
 
 public class Room extends KeyAdapter implements GLEventListener {
 
@@ -28,7 +28,7 @@ public class Room extends KeyAdapter implements GLEventListener {
     float camAngle = 2;
     private static GLU glu = new GLU();
     private static GLCanvas canvas = new GLCanvas();
-    private static Frame frame = new Frame("Room");
+    private static Frame frame = new Frame("Game.Room");
     private static Animator animator = new Animator(canvas);
     private boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
         IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
@@ -618,6 +618,14 @@ public class Room extends KeyAdapter implements GLEventListener {
                 UIsPressed = true;
                 player.camMove(1,"Z");
                 break;
+             deal with!:   /** deal:
+            case KeyEvent.VK_F1:
+                UIsPressed = true;
+                player.camMove(1,"Z");
+            case KeyEvent.VK_F2:
+                UIsPressed = true;
+                player.camMove(1,"Z");
+                break;*/
             default:
                 break;
         }

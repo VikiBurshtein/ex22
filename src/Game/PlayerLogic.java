@@ -1,14 +1,16 @@
+package Game;
+
 //names ids
 public class PlayerLogic{
 
-    float xAxis[] = new float[3];
-    float yAxis[] = new float[3];
-    float zAxis[] = new float[3];
-    float pos[] = new float[3];
-    float look[] = new float[3];
-    float moveQuanity;
-    float angle;
-    float coordiTranslation[][] = new float[3][3];
+    public float xAxis[] = new float[3];
+    public float yAxis[] = new float[3];
+    public float zAxis[] = new float[3];
+    public float pos[] = new float[3];
+    public float look[] = new float[3];
+    public float moveQuanity;
+    public float angle;
+    public float coordiTranslation[][] = new float[3][3];
 
     public PlayerLogic(float move, float angle) {
         xAxis[0] = 1;
