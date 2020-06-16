@@ -618,7 +618,7 @@ public class Room extends KeyAdapter implements GLEventListener {
                 UIsPressed = true;
                 player.camMove(1,"Z");
                 break;
-             deal with!:   /** deal:
+             /**deal with!:   /** deal:
             case KeyEvent.VK_F1:
                 UIsPressed = true;
                 player.camMove(1,"Z");

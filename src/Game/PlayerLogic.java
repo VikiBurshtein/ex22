@@ -16,6 +16,7 @@ public class PlayerLogic{
         xAxis[0] = 1;
         yAxis[1] = 1;
         zAxis[2] = -1;
+
         pos[0] = 20;
         pos[1] = -55;
         pos[2] = 50;
