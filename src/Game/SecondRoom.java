@@ -19,13 +19,12 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 public class SecondRoom extends KeyAdapter implements GLEventListener {
-    private Texture mazeTexture, ceilingTexture;
+    private Texture mazeTexture, ceilingTexture, startTexture, endTexture, floorTexture, wallsTexture;
     private WavefrontObjectLoader_DisplayList mazeModel;
     static GLU glu = new GLU();
     static GLCanvas canvas = new GLCanvas();
     static Frame frame = new Frame("Second Room");
     static Animator animator = new Animator(canvas);
-    private Texture wallsTexture;
     PlayerLogic player;
     float stepQuanity = 0.2f;
     float camAngle = 2;
@@ -62,7 +61,7 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         gl.glScalef(roomWidth, roomHeight, roomDepth);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        wallsTexture.bind(gl);
+        startTexture.bind(gl);
         gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
         gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, 0, 1);
@@ -74,7 +73,18 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         gl.glVertex3f(1.0f, 1.0f, 1.0f);
         gl.glTexCoord2f(0.0f, 1.0f);
         gl.glVertex3f(-1.0f, 1.0f, 1.0f);
+        gl.glEnd();
+        gl.glPopMatrix();
+
         //Front wall
+        gl.glPushMatrix();
+        gl.glTranslatef(26.0f, 0.0f, 4.0f);
+        gl.glScalef(roomWidth, roomHeight, roomDepth);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        endTexture.bind(gl);
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+        gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, 0, -1);
         gl.glTexCoord2f(1.0f, 0.0f);
         gl.glVertex3f(-1.0f, -1.0f, -1.0f);
@@ -84,7 +94,18 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         gl.glVertex3f(1.0f, 1.0f, -1.0f);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, -1.0f);
+        gl.glEnd();
+        gl.glPopMatrix();
+
         //floor
+        gl.glPushMatrix();
+        gl.glTranslatef(26.0f, 0.0f, 4.0f);
+        gl.glScalef(roomWidth, roomHeight, roomDepth);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        floorTexture.bind(gl);
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+        gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, -1, 0);
         gl.glTexCoord2f(1.0f, 1.0f);
         gl.glVertex3f(-1.0f, -1.0f, -1.0f);
@@ -94,7 +115,18 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         gl.glVertex3f(1.0f, -1.0f, 1.0f);
         gl.glTexCoord2f(1.0f, 0.0f);
         gl.glVertex3f(-1.0f, -1.0f, 1.0f);
+        gl.glEnd();
+        gl.glPopMatrix();
+
         //Right wall
+        gl.glPushMatrix();
+        gl.glTranslatef(26.0f, 0.0f, 4.0f);
+        gl.glScalef(roomWidth, roomHeight, roomDepth);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        wallsTexture.bind(gl);
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+        gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(1, 0, 0);
         gl.glTexCoord2f(1.0f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, -1.0f);
@@ -159,12 +191,18 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         // Texture
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
-            String walls = "resources/secondRoom/room.jpg";
+            String walls = "resources/secondRoom/walls.jpg";
             wallsTexture = TextureIO.newTexture(new File(walls), true);
+            String start = "resources/secondRoom/start.jpg";
+            startTexture = TextureIO.newTexture(new File(start), true);
+            String end = "resources/secondRoom/end.jpg";
+            endTexture = TextureIO.newTexture(new File(end), true);
             String maze="resources/secondRoom/maze.jpg";
             mazeTexture=TextureIO.newTexture(new File( maze ),true);
             String ceiling = "resources/secondRoom/sky.jpg";
             ceilingTexture = TextureIO.newTexture(new File(ceiling), true);
+            String floor = "resources/secondRoom/floor.jpg";
+            floorTexture = TextureIO.newTexture(new File(floor), true);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

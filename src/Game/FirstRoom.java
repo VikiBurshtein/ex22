@@ -30,6 +30,7 @@ public class FirstRoom extends KeyAdapter implements GLEventListener {
     private static Animator animator = new Animator(canvas);
     private boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
             IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
+    private WavefrontObjectLoader_DisplayList doorModel;
     private float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
     private float	position0[] = {10f,0f,-5f,1.0f};	// red light on the cubes from the top
     private float roomWidth = 100.0f;
@@ -213,6 +214,9 @@ public class FirstRoom extends KeyAdapter implements GLEventListener {
         }
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+
+
+
         if (drawable instanceof com.jogamp.newt.Window) {
             com.jogamp.newt.Window window = (Window) drawable;
             window.addKeyListener(this);
