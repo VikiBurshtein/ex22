@@ -268,7 +268,7 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
-                exit();
+                exit(true);
                 break;
             //player movement:
             case KeyEvent.VK_W:
@@ -320,14 +320,6 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
                 UIsPressed = true;
                 player.camMove(1,"Z");
                 break;
-            /**deal with!:   /** deal:
-             case KeyEvent.VK_F1:
-             UIsPressed = true;
-             player.camMove(1,"Z");
-             case KeyEvent.VK_F2:
-             UIsPressed = true;
-             player.camMove(1,"Z");
-             break;*/
             default:
                 break;
         }
@@ -384,6 +376,16 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
                 break;
             case KeyEvent.VK_U:
                 UIsPressed = false;
+            case KeyEvent.VK_F2:
+                exit(false);
+                ThirdRoom t = new ThirdRoom();
+                t.start();
+                break;
+            case KeyEvent.VK_F3:
+                exit(false);
+                FirstRoomAndLoader f = new FirstRoomAndLoader();
+                f.start();
+                break;
             default:
                 break;
         }
@@ -392,13 +394,15 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
     public void keyTyped(KeyEvent e) {
     }
 
-    public static void exit() {
+    public static void exit(boolean system) {
         animator.stop();
         frame.dispose();
-        System.exit(0);
+        if(system){
+            System.exit(0);
+        }
     }
 
-    public static void main(String[] args) {
+    public static void start() {
         canvas.addGLEventListener(new SecondRoom());
         frame.add(canvas);
         frame.setSize(3000, 2000);
