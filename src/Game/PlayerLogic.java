@@ -6,16 +6,31 @@ public class PlayerLogic{
     public float xAxis[] = new float[3];
     public float yAxis[] = new float[3];
     public float zAxis[] = new float[3];
-    public float pos[] = {20,-55,50};
+    public float pos[] = new float[3];
     public float look[] = new float[3];
     public float moveQuanity;
     public float angle;
     public float coordiTranslation[][] = new float[3][3];
 
     public PlayerLogic(float move, float angle) {
+
+        //start point
         xAxis[0] = 1;
         yAxis[1] = 1;
         zAxis[2] = -1;
+
+        pos[0] = 0; //right left
+        pos[1] = -90;//up down
+        pos[2] = 399;//in out
+
+
+//        xAxis[0] = 1;
+//        yAxis[1] = 1;
+//        zAxis[2] = -1;
+//
+//        pos[0] = 20;
+//        pos[1] = -55;
+//        pos[2] = 50;
         this.moveQuanity = move;
         this.angle = angle;
         setTransMatrix();

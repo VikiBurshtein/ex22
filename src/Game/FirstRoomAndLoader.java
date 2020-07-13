@@ -12,6 +12,7 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
+import javax.media.opengl.fixedfunc.GLMatrixFunc;
 import javax.media.opengl.glu.GLU;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
     float camAngle = 2;
     private static GLU glu = new GLU();
     private static GLCanvas canvas = new GLCanvas();
-    private static Frame frame = new Frame("First Room");
+    private static Frame frame = new Frame("Escape Room");
     private static Animator animator = new Animator(canvas);
     private boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
             IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
@@ -36,6 +37,8 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
     private float roomWidth = 100.0f;
     private float roomHeight = 100.0f;
     private float roomDepth = 400.0f;
+
+
 
     public void display(GLAutoDrawable gLDrawable) {
         final GL2 gl = gLDrawable.getGL().getGL2();
@@ -214,8 +217,6 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
         }
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-
-
 
         if (drawable instanceof com.jogamp.newt.Window) {
             com.jogamp.newt.Window window = (Window) drawable;
@@ -408,7 +409,7 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
 
 
     public static void start() {
-        canvas.addGLEventListener(new FirstRoomAndLoader());
+        canvas.addGLEventListener(new FourthRoom());
         frame.add(canvas);
         frame.setSize(3000, 2000);
         frame.addWindowListener(new java.awt.event.WindowAdapter() {

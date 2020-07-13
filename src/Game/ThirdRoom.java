@@ -12,16 +12,19 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
+import javax.media.opengl.fixedfunc.GLMatrixFunc;
 import javax.media.opengl.glu.GLU;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import java.awt.Frame;
+
 
 public class ThirdRoom extends KeyAdapter implements GLEventListener {
 
     private Texture wallsTexture,ceilingTexture,floorTexture, startTexture, endTexture, lasersTexture;
-    private WavefrontObjectLoader_DisplayList staticLasersModel;
+    private WavefrontObjectLoader_DisplayList laserModel;
     PlayerLogic player;
     float stepQuanity = 0.2f;
     float camAngle = 2;
@@ -36,6 +39,11 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
     private float roomWidth = 100.0f;
     private float roomHeight = 100.0f;
     private float roomDepth = 400.0f;
+    private float HorizontalLaserValue = -100.0f;
+    private boolean laserGoingDown = true;
+    private float VerticalLaserValue = -100.0f;
+    private boolean laserGoingRight = true;
+    private HealthBar healthBar;
 
 
     public void display(GLAutoDrawable gLDrawable) {
@@ -46,16 +54,285 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
         glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
                 player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
                 player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
-
         drawRoom(gl);
-        gl.glTexParameteri ( GL2.GL_TEXTURE_2D,GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT );
-        gl.glTexParameteri( GL2.GL_TEXTURE_2D,GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT );
-        lasersTexture.bind(gl);
-        gl.glTranslatef(-2250.0f, -200.0f, 300.0f);
-        gl.glScalef(400, 200, 200);
-        gl.glRotatef(50, 0, 0,0);
-        staticLasersModel.drawModel(gl);
+        drawDynamicLasers(gl);
+        drawStaticLasers(gl);
+        drawHealtbBar(gl);
     }
+
+    public void drawHealtbBar(GL2 gl){
+        //set to ortho matrix to draw in 2d
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        gl.glOrtho(-0.5f, 10f, -10f, 0.5f, -1f, 1f);
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+
+        healthBar.drawHealthBar(gl);
+
+        //return the PROJECTION matrix and then to vm
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPopMatrix();
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPopMatrix();
+    }
+
+    public void drawDynamicLasers(GL2 gl){
+        //draw horizontal laser
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(5.0f, HorizontalLaserValue, -250.0f);
+        if(laserGoingDown){
+            if(HorizontalLaserValue < -270){
+                laserGoingDown = false;
+            } else {
+                HorizontalLaserValue = HorizontalLaserValue - 0.5f;
+            }
+        } else {
+            if(HorizontalLaserValue > -90){
+                laserGoingDown = true;
+            } else {
+                HorizontalLaserValue = HorizontalLaserValue + 0.5f;
+            }
+        }
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 0, 90,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //draw vertical laser
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(VerticalLaserValue, -50, -300.0f);
+        if(laserGoingRight){
+            if(VerticalLaserValue > 90){
+                laserGoingRight = false;
+            } else {
+                VerticalLaserValue = VerticalLaserValue + 0.5f;
+            }
+        } else {
+            if(VerticalLaserValue < -90){
+                laserGoingRight = true;
+            } else {
+                VerticalLaserValue = VerticalLaserValue - 0.5f;
+            }
+        }
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 90, 0,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+    }
+    public void drawStaticLasers(GL2 gl){
+        //1.1
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(0, -100, 0.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(45, 0, 45,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //1.2
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(0, -150, 0.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(45, 0, 45,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //1.3
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(0, -200, 0.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(45, 0, 45,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //1.4
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(0, -250, 0.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(45, 0, 45,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //2.1
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(110, -150, -100.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 0, 90,90);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //2.2
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(110, -150, -100.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(135, 0, 135,135);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //5.1
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(5.0f, -100, 250.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 0, 90,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //5.2
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(5.0f, -150, 200.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 0, 90,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //5.3
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(5.0f, -200, 250.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 0, 90,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //5.4
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(5.0f, -250, 200.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 0, 90,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //6.1
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(-60, -50, 0.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 90, 0,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //6.2
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(-20, -50, -50.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 90, 0,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //6.3
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(20, -50, 0.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 90, 0,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+        //6.4
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
+                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+
+        gl.glTranslatef(60, -50, -50.0f);
+        gl.glScalef(15, 15, 15);
+        gl.glRotatef(90, 90, 0,0);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+        lasersTexture.bind(gl);
+        laserModel.drawModel(gl);
+
+    }
+
 
     public void drawRoom(GL2 gl){
         //Back wall
@@ -196,6 +473,8 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
         // Texture
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
+            //create health bar
+            healthBar = new HealthBar();
             String lasers = "resources/thirdRoom/green.jpg";
             lasersTexture = TextureIO.newTexture(new File(lasers), true);
             String walls = "resources/thirdRoom/walls.jpg";
@@ -215,7 +494,7 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
 
-        staticLasersModel = new WavefrontObjectLoader_DisplayList("thirdRoom/staticLasers.obj");
+        laserModel = new WavefrontObjectLoader_DisplayList("thirdRoom/laser.obj");
 
         if (drawable instanceof com.jogamp.newt.Window) {
             com.jogamp.newt.Window window = (Window) drawable;
@@ -380,7 +659,7 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
             case KeyEvent.VK_F2:
                 exit(false);
                 FourthRoom fr = new FourthRoom();
-                fr.start();
+                //fr.start();
                 break;
             case KeyEvent.VK_F3:
                 exit(false);
