@@ -270,8 +270,8 @@ public class WavefrontObjectLoader_DisplayList {
     public void drawModel(GL2 inGL) {
         if (init) {
             ConstructInterleavedArray(inGL);
-            cleanup();
-            init = false;
+//            cleanup();
+//            init = false;
         }
         inGL.glDrawArrays(FaceFormat, 0, PolyCount * FaceMultiplier);
     }

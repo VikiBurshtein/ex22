@@ -20,7 +20,7 @@ public class PlayerLogic{
         zAxis[2] = -1;
 
         pos[0] = 0; //right left
-        pos[1] = -90;//up down
+        pos[1] = 0;//up down
         pos[2] = 399;//in out
 
 

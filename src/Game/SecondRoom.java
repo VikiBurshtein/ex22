@@ -1,4 +1,5 @@
 package Game;//names ids
+
 import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
@@ -19,50 +20,60 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 public class SecondRoom extends KeyAdapter implements GLEventListener {
-    private Texture mazeTexture, ceilingTexture, startTexture, endTexture, floorTexture, wallsTexture;
+    private String roomName = "secondRoom";
+    private Texture leftWallTexture, rightWallTexture, frontWallTexture, backWallTexture, ceilingTexture, floorTexture, mazeTexture;
     private WavefrontObjectLoader_DisplayList mazeModel;
-    static GLU glu = new GLU();
-    static GLCanvas canvas = new GLCanvas();
-    static Frame frame = new Frame("Second Room");
-    static Animator animator = new Animator(canvas);
-    PlayerLogic player;
-    float stepQuanity = 0.2f;
-    float camAngle = 2;
+    private PlayerLogic player;
+    private static GLU glu = new GLU();
+    private static GLCanvas canvas = new GLCanvas();
+    private static Frame frame = new Frame("Second Room");
+    private static Animator animator = new Animator(canvas);
+    private float stepQuanity = 0.2f;
+    private float camAngle = 2;
 
     private boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
             IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
     private float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
-    private float	position0[] = {10f,0f,-5f,1.0f};	// red light on the cubes from the top
+    private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
     private float roomWidth = 414.0f;
     private float roomHeight = 100.0f;
     private float roomDepth = 416.0f;
 
     public void display(GLAutoDrawable gLDrawable) {
+
         final GL2 gl = gLDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         player.setLookAtPoint();
         gl.glLoadIdentity();  // Reset The View
-        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
-                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
-                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+        glu.gluLookAt(player.pos[0], player.pos[1], player.pos[2],//Specifies the position of the eye point.
+                player.look[0], player.look[1], player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0], player.yAxis[1], player.yAxis[2]); //Specifies the direction of the up vector.
+
         drawRoom(gl);
-        gl.glTexParameteri ( GL2.GL_TEXTURE_2D,GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT );
-        gl.glTexParameteri( GL2.GL_TEXTURE_2D,GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT );
-        mazeTexture.bind(gl);
+        drawObjects(gl);
+    }
+
+    public void drawObjects(GL2 gl) {
+        drawMaze(gl);
+    }
+
+    public void drawMaze(GL2 gl) {
+        gl.glPushMatrix();
         gl.glTranslatef(10.0f, 0.0f, 260.0f);
         gl.glScalef(40, 100, 40);
+        mazeTexture.bind(gl);
         mazeModel.drawModel(gl);
+        gl.glPopMatrix();
     }
 
     public void drawRoom(GL2 gl) {
-        //Back wall
         gl.glPushMatrix();
-        gl.glTranslatef(26.0f, 0.0f, 4.0f);
+        gl.glTranslatef(0.0f, 0.0f, 0.0f);
         gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        startTexture.bind(gl);
         gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+
+        //Back wall
+        backWallTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, 0, 1);
         gl.glTexCoord2f(0.0f, 0.0f);
@@ -74,16 +85,9 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(0.0f, 1.0f);
         gl.glVertex3f(-1.0f, 1.0f, 1.0f);
         gl.glEnd();
-        gl.glPopMatrix();
 
         //Front wall
-        gl.glPushMatrix();
-        gl.glTranslatef(26.0f, 0.0f, 4.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        endTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+        frontWallTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, 0, -1);
         gl.glTexCoord2f(1.0f, 0.0f);
@@ -95,16 +99,51 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, -1.0f);
         gl.glEnd();
-        gl.glPopMatrix();
+
+        //Right wall
+        rightWallTexture.bind(gl);
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glNormal3f(1, 0, 0);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex3f(1.0f, -1.0f, -1.0f);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex3f(1.0f, 1.0f, -1.0f);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex3f(1.0f, 1.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex3f(1.0f, -1.0f, 1.0f);
+        gl.glEnd();
+
+        //Left wall
+        leftWallTexture.bind(gl);
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glNormal3f(-1, 0, 0);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex3f(-1.0f, -1.0f, -1.0f);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex3f(-1.0f, -1.0f, 1.0f);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex3f(-1.0f, 1.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
+        gl.glEnd();
+
+        //ceiling
+        ceilingTexture.bind(gl);
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glNormal3f(0, 1, 0);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex3f(-1.0f, 1.0f, 1.0f);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex3f(1.0f, 1.0f, 1.0f);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex3f(1.0f, 1.0f, -1.0f);
+        gl.glEnd();
 
         //floor
-        gl.glPushMatrix();
-        gl.glTranslatef(26.0f, 0.0f, 4.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
         floorTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
         gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, -1, 0);
         gl.glTexCoord2f(1.0f, 1.0f);
@@ -118,60 +157,6 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         gl.glEnd();
         gl.glPopMatrix();
 
-        //Right wall
-        gl.glPushMatrix();
-        gl.glTranslatef(26.0f, 0.0f, 4.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        wallsTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
-        gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(1, 0, 0);
-        gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex3f(1.0f, -1.0f, -1.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex3f(1.0f, 1.0f, -1.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex3f(1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex3f(1.0f, -1.0f, 1.0f);
-        //Left wall
-        gl.glNormal3f(-1, 0, 0);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex3f(-1.0f, -1.0f, -1.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex3f(-1.0f, -1.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex3f(-1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
-        gl.glEnd();
-        gl.glPopMatrix();
-
-        //ceiling
-        gl.glPushMatrix();
-        gl.glTranslatef(0.0f, 0.0f, 0.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        ceilingTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
-        gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(0, 1, 0);
-        gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex3f(-1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex3f(1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex3f(1.0f, 1.0f, -1.0f);
-        gl.glEnd();
-        gl.glPopMatrix();
-
-
-        gl.glEnd();
         gl.glFlush();
     }
 
@@ -180,6 +165,7 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
     }
 
     public void init(GLAutoDrawable drawable) {
+        player = new PlayerLogic(stepQuanity, camAngle);
         final GL2 gl = drawable.getGL().getGL2();
         gl.glShadeModel(GL2.GL_SMOOTH);              // Enable Smooth Shading
         gl.glClearColor(0.0f, 0.0f, 2.0f, 0.0f);    // Background
@@ -187,35 +173,12 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
         gl.glEnable(GL2.GL_DEPTH_TEST);              // Enables Depth Testing
         gl.glDepthFunc(GL2.GL_LEQUAL);               // The Type Of Depth Testing To Do
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
-
-        // Texture
-        gl.glEnable(GL2.GL_TEXTURE_2D);
-        try {
-            String walls = "resources/secondRoom/walls.jpg";
-            wallsTexture = TextureIO.newTexture(new File(walls), true);
-            String start = "resources/secondRoom/start.jpg";
-            startTexture = TextureIO.newTexture(new File(start), true);
-            String end = "resources/secondRoom/end.jpg";
-            endTexture = TextureIO.newTexture(new File(end), true);
-            String maze="resources/secondRoom/maze.jpg";
-            mazeTexture=TextureIO.newTexture(new File( maze ),true);
-            String ceiling = "resources/secondRoom/sky.jpg";
-            ceilingTexture = TextureIO.newTexture(new File(ceiling), true);
-            String floor = "resources/secondRoom/floor.jpg";
-            floorTexture = TextureIO.newTexture(new File(floor), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
 
-        mazeModel = new WavefrontObjectLoader_DisplayList("secondRoom/maze.obj");
+        setTextures(gl);
+        loadObjects();
 
-
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
         if (drawable instanceof com.jogamp.newt.Window) {
             com.jogamp.newt.Window window = (Window) drawable;
             window.addKeyListener(this);
@@ -223,33 +186,59 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
             java.awt.Component comp = (java.awt.Component) drawable;
             new AWTKeyAdapter(this, drawable).addTo(comp);
         }
-
         // Light
-        float	ambient[] = {0.1f,0.1f,0.1f,1.0f};
-        float	diffuse0[] = {1f,0f,0f,1.0f};
-
+//        float	ambient[] = {0.1f,0.1f,0.1f,1.0f};
+//        float	diffuse0[] = {1f,0f,0f,1.0f};
+//
 //        gl.glShadeModel(GL2.GL_SMOOTH);
 //        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
 //        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse0, 0);
 //        gl.glEnable(GL2.GL_LIGHT0);
 //
 //        gl.glEnable(GL2.GL_LIGHTING);
-        player = new PlayerLogic(stepQuanity, camAngle);
-
-        WIsPressed = false;
-        SIsPressed = false;
-        AIsPressed = false;
-        DIsPressed = false;
-        EIsPressed = false;
-        QIsPressed = false;
-        IIsPressed = false;
-        KIsPressed = false;
-        LIsPressed = false;
-        JIsPressed = false;
-        OIsPressed = false;
-        UIsPressed = false;
+//        WIsPressed = false;
+//        SIsPressed = false;
+//        AIsPressed = false;
+//        DIsPressed = false;
+//        EIsPressed = false;
+//        QIsPressed = false;
+//        IIsPressed = false;
+//        KIsPressed = false;
+//        LIsPressed = false;
+//        JIsPressed = false;
+//        OIsPressed = false;
+//        UIsPressed = false;
     }
 
+    public void setTextures(GL2 gl) {
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+        try {
+            //objects texture
+            String maze = "resources/" + roomName + "/objectTextures/maze.jpg";
+            mazeTexture = TextureIO.newTexture(new File(maze), true);
+
+            //room texture
+            String leftWall = "resources/" + roomName + "/roomTextures/leftWall.jpg";
+            leftWallTexture = TextureIO.newTexture(new File(leftWall), true);
+            String rightWall = "resources/" + roomName + "/roomTextures/rightWall.jpg";
+            rightWallTexture = TextureIO.newTexture(new File(rightWall), true);
+            String backWall = "resources/" + roomName + "/roomTextures/backWall.jpg";
+            backWallTexture = TextureIO.newTexture(new File(backWall), true);
+            String frontWall = "resources/" + roomName + "/roomTextures/frontWall.jpg";
+            frontWallTexture = TextureIO.newTexture(new File(frontWall), true);
+            String ceiling = "resources/" + roomName + "/roomTextures/ceiling.jpg";
+            ceilingTexture = TextureIO.newTexture(new File(ceiling), true);
+            String floor = "resources/" + roomName + "/roomTextures/floor.jpg";
+            floorTexture = TextureIO.newTexture(new File(floor), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void loadObjects() {
+        mazeModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/maze.obj");
+    }
 
     public void reshape(GLAutoDrawable drawable, int x,
                         int y, int width, int height) {
@@ -273,52 +262,52 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
             //player movement:
             case KeyEvent.VK_W:
                 WIsPressed = true;
-                player.move(0,0,11);
+                player.move(0, 0, 11);
                 break;
             case KeyEvent.VK_S:
                 SIsPressed = true;
-                player.move(0,0,-11);
+                player.move(0, 0, -11);
                 break;
             case KeyEvent.VK_D:
                 DIsPressed = true;
-                player.move(11,0,0);
+                player.move(11, 0, 0);
                 break;
             case KeyEvent.VK_A:
                 AIsPressed = true;
-                player.move(-11,0,0);
+                player.move(-11, 0, 0);
                 break;
             case KeyEvent.VK_E:
                 EIsPressed = true;
-                player.move(0,11,0);
+                player.move(0, 11, 0);
                 break;
             case KeyEvent.VK_Q:
                 QIsPressed = true;
-                player.move(0,-11,0);
+                player.move(0, -11, 0);
                 break;
             //camera movement:
             case KeyEvent.VK_I:
                 IIsPressed = true;
-                player.camMove(1,"X");
+                player.camMove(1, "X");
                 break;
             case KeyEvent.VK_K:
                 KIsPressed = true;
-                player.camMove(-1,"X");
+                player.camMove(-1, "X");
                 break;
             case KeyEvent.VK_L:
                 LIsPressed = true;
-                player.camMove(-1,"Y");
+                player.camMove(-1, "Y");
                 break;
             case KeyEvent.VK_J:
                 JIsPressed = true;
-                player.camMove(1,"Y");
+                player.camMove(1, "Y");
                 break;
             case KeyEvent.VK_O:
                 OIsPressed = true;
-                player.camMove(-1,"Z");
+                player.camMove(-1, "Z");
                 break;
             case KeyEvent.VK_U:
                 UIsPressed = true;
-                player.camMove(1,"Z");
+                player.camMove(1, "Z");
                 break;
             default:
                 break;
@@ -397,7 +386,7 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
     public static void exit(boolean system) {
         animator.stop();
         frame.dispose();
-        if(system){
+        if (system) {
             System.exit(0);
         }
     }

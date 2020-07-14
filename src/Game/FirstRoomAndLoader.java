@@ -18,13 +18,20 @@ import java.io.File;
 import java.io.IOException;
 
 import java.awt.Frame;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
-
-    private Texture frontTexture,backTexture,rightTexture,leftTexture,ceilingTexture,floorTexture;
-    PlayerLogic player;
-    float stepQuanity = 0.2f;
-    float camAngle = 2;
+    private String roomName = "firstRoom";
+    private Texture leftWallTexture, rightWallTexture, frontWallTexture,
+            backWallTexture, ceilingTexture, floorTexture, coinTexture, monkeyTexture;
+    private WavefrontObjectLoader_DisplayList coinModel, monkeyModel;
+    private List<float[]> coins;
+    private List<float[]> monkeys;
+    private PlayerLogic player;
+    private float stepQuanity = 0.2f;
+    private float camAngle = 2;
     private static GLU glu = new GLU();
     private static GLCanvas canvas = new GLCanvas();
     private static Frame frame = new Frame("Escape Room");
@@ -34,33 +41,85 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
     private WavefrontObjectLoader_DisplayList doorModel;
     private float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
     private float	position0[] = {10f,0f,-5f,1.0f};	// red light on the cubes from the top
-    private float roomWidth = 100.0f;
+    private float roomWidth = 200.0f;
     private float roomHeight = 100.0f;
     private float roomDepth = 400.0f;
-
-
+    private float coinRotation = 0;
+    private boolean monkeyUp = true;
+    private boolean monkeyRight = true;
+    private float monkey0Rotation = 0;
+    private float monkey1Rotation = 0;
+    private float monkeyElevation = -50;
 
     public void display(GLAutoDrawable gLDrawable) {
         final GL2 gl = gLDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         player.setLookAtPoint();
         gl.glLoadIdentity();  // Reset The View
-        glu.gluLookAt(player.pos[0],player.pos[1],player.pos[2],//Specifies the position of the eye point.
-                player.look[0],player.look[1],player.look[2], //Specifies the position of the reference point.
-                player.yAxis[0],player.yAxis[1],player.yAxis[2]); //Specifies the direction of the up vector.
+        glu.gluLookAt(player.pos[0], player.pos[1], player.pos[2],//Specifies the position of the eye point.
+                player.look[0], player.look[1], player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0], player.yAxis[1], player.yAxis[2]); //Specifies the direction of the up vector.
 
         drawRoom(gl);
+        drawObjects(gl);
     }
 
-    public void drawRoom(GL2 gl){
-        //Back wall
+    public void drawObjects(GL2 gl) {
+        drawCoins(gl);
+        drawMonkeys(gl);
+    }
+
+    public void drawMonkeys(GL2 gl){
+        float[] coordinates;
+        for (int i = 0; i < monkeys.size(); i++) {
+            coordinates = monkeys.get(i);
+            drawOneMonkey(gl,coordinates[0],coordinates[1],coordinates[2],i);
+        }
+        monkey0Rotation = monkey0Rotation + 4;
+        monkey1Rotation = monkey1Rotation + 1;
+    }
+
+    public void drawCoins(GL2 gl){
+        float[] coordinates;
+        for (int i = 0; i < coins.size(); i++) {
+            coordinates = coins.get(i);
+            drawOneCoin(gl,coordinates[0],coordinates[1],coordinates[2]);
+        }
+        coinRotation = coinRotation + 3f;
+    }
+
+    public void drawOneMonkey(GL2 gl, float x, float y, float z, float monkeyNumber){
+        gl.glPushMatrix();
+        gl.glTranslatef(x, y, z);
+        gl.glScalef(15, 15, 15);
+        float rotationAngle;
+        if(monkeyNumber == 0){ rotationAngle = monkey0Rotation;}
+        else if(monkeyNumber == 1){rotationAngle = monkey1Rotation;}
+        else {rotationAngle = 5;}
+        gl.glRotatef(rotationAngle, 0, rotationAngle, 0);
+        monkeyTexture.bind(gl);
+        monkeyModel.drawModel(gl);
+        gl.glPopMatrix();
+    }
+
+    public void drawOneCoin(GL2 gl, float x, float y, float z){
+        gl.glPushMatrix();
+        gl.glTranslatef(x, y, z);
+        gl.glScalef(5, 5, 5);
+        gl.glRotatef(coinRotation, 90, 90, 90);
+        coinTexture.bind(gl);
+        coinModel.drawModel(gl);
+        gl.glPopMatrix();
+    }
+
+    public void drawRoom(GL2 gl) {
         gl.glPushMatrix();
         gl.glTranslatef(0.0f, 0.0f, 0.0f);
         gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        backTexture.bind(gl);
         gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+
+        //Back wall
+        backWallTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, 0, 1);
         gl.glTexCoord2f(0.0f, 0.0f);
@@ -72,16 +131,9 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(0.0f, 1.0f);
         gl.glVertex3f(-1.0f, 1.0f, 1.0f);
         gl.glEnd();
-        gl.glPopMatrix();
 
         //Front wall
-        gl.glPushMatrix();
-        gl.glTranslatef(0.0f, 0.0f, 0.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        frontTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+        frontWallTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, 0, -1);
         gl.glTexCoord2f(1.0f, 0.0f);
@@ -93,16 +145,37 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, -1.0f);
         gl.glEnd();
-        gl.glPopMatrix();
+
+        //Right wall
+        rightWallTexture.bind(gl);
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glNormal3f(1, 0, 0);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex3f(1.0f, -1.0f, -1.0f);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex3f(1.0f, 1.0f, -1.0f);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex3f(1.0f, 1.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex3f(1.0f, -1.0f, 1.0f);
+        gl.glEnd();
+
+        //Left wall
+        leftWallTexture.bind(gl);
+        gl.glBegin(GL2.GL_QUADS);
+        gl.glNormal3f(-1, 0, 0);
+        gl.glTexCoord2f(0.0f, 0.0f);
+        gl.glVertex3f(-1.0f, -1.0f, -1.0f);
+        gl.glTexCoord2f(1.0f, 0.0f);
+        gl.glVertex3f(-1.0f, -1.0f, 1.0f);
+        gl.glTexCoord2f(1.0f, 1.0f);
+        gl.glVertex3f(-1.0f, 1.0f, 1.0f);
+        gl.glTexCoord2f(0.0f, 1.0f);
+        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
+        gl.glEnd();
 
         //ceiling
-        gl.glPushMatrix();
-        gl.glTranslatef(0.0f, 0.0f, 0.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
         ceilingTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
         gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, 1, 0);
         gl.glTexCoord2f(0.0f, 1.0f);
@@ -114,16 +187,9 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
         gl.glTexCoord2f(1.0f, 1.0f);
         gl.glVertex3f(1.0f, 1.0f, -1.0f);
         gl.glEnd();
-        gl.glPopMatrix();
 
         //floor
-        gl.glPushMatrix();
-        gl.glTranslatef(0.0f, 0.0f, 0.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
         floorTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
         gl.glBegin(GL2.GL_QUADS);
         gl.glNormal3f(0, -1, 0);
         gl.glTexCoord2f(1.0f, 1.0f);
@@ -137,49 +203,6 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
         gl.glEnd();
         gl.glPopMatrix();
 
-        //Right wall
-        gl.glPushMatrix();
-        gl.glTranslatef(0.0f, 0.0f, 0.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        rightTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
-        gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(1, 0, 0);
-        gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex3f(1.0f, -1.0f, -1.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex3f(1.0f, 1.0f, -1.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex3f(1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex3f(1.0f, -1.0f, 1.0f);
-        gl.glEnd();
-        gl.glPopMatrix();
-
-        //Left wall
-        gl.glPushMatrix();
-        gl.glTranslatef(0.0f, 0.0f, 0.0f);
-        gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
-        leftTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
-        gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(-1, 0, 0);
-        gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex3f(-1.0f, -1.0f, -1.0f);
-        gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex3f(-1.0f, -1.0f, 1.0f);
-        gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex3f(-1.0f, 1.0f, 1.0f);
-        gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
-        gl.glEnd();
-        gl.glPopMatrix();
-
-        gl.glEnd();
         gl.glFlush();
     }
 
@@ -188,6 +211,7 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
     }
 
     public void init(GLAutoDrawable drawable) {
+        player = new PlayerLogic(stepQuanity, camAngle);
         final GL2 gl = drawable.getGL().getGL2();
         gl.glShadeModel(GL2.GL_SMOOTH);              // Enable Smooth Shading
         gl.glClearColor(0.0f, 0.0f, 2.0f, 0.0f);    // Background
@@ -195,28 +219,11 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
         gl.glEnable(GL2.GL_DEPTH_TEST);              // Enables Depth Testing
         gl.glDepthFunc(GL2.GL_LEQUAL);               // The Type Of Depth Testing To Do
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
-
-        // Texture
-        gl.glEnable(GL2.GL_TEXTURE_2D);
-        try {
-            String back = "resources/firstRoom/back.jpg";
-            backTexture = TextureIO.newTexture(new File(back), true);
-            String left = "resources/firstRoom/left.jpg";
-            leftTexture = TextureIO.newTexture(new File(left), true);
-            String right = "resources/firstRoom/right.jpg";
-            rightTexture = TextureIO.newTexture(new File(right), true);
-            String front = "resources/firstRoom/front.jpg";
-            frontTexture = TextureIO.newTexture(new File(front), true);
-            String ceiling = "resources/firstRoom/up.jpg";
-            ceilingTexture = TextureIO.newTexture(new File(ceiling), true);
-            String floor = "resources/firstRoom/down.jpg";
-            floorTexture = TextureIO.newTexture(new File(floor), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+
+        setTextures(gl);
+        loadObjects();
 
         if (drawable instanceof com.jogamp.newt.Window) {
             com.jogamp.newt.Window window = (Window) drawable;
@@ -225,7 +232,6 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
             java.awt.Component comp = (java.awt.Component) drawable;
             new AWTKeyAdapter(this, drawable).addTo(comp);
         }
-
         // Light
 //        float	ambient[] = {0.1f,0.1f,0.1f,1.0f};
 //        float	diffuse0[] = {1f,0f,0f,1.0f};
@@ -236,22 +242,89 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
 //        gl.glEnable(GL2.GL_LIGHT0);
 //
 //        gl.glEnable(GL2.GL_LIGHTING);
-        player = new PlayerLogic(stepQuanity, camAngle);
+//        WIsPressed = false;
+//        SIsPressed = false;
+//        AIsPressed = false;
+//        DIsPressed = false;
+//        EIsPressed = false;
+//        QIsPressed = false;
+//        IIsPressed = false;
+//        KIsPressed = false;
+//        LIsPressed = false;
+//        JIsPressed = false;
+//        OIsPressed = false;
+//        UIsPressed = false;
 
-        WIsPressed = false;
-        SIsPressed = false;
-        AIsPressed = false;
-        DIsPressed = false;
-        EIsPressed = false;
-        QIsPressed = false;
-        IIsPressed = false;
-        KIsPressed = false;
-        LIsPressed = false;
-        JIsPressed = false;
-        OIsPressed = false;
-        UIsPressed = false;
+
+        // Texture
     }
 
+    public void setTextures(GL2 gl) {
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+        try {
+            //objects texture
+            String coin = "resources/" + roomName + "/objectTextures/coin.jpg";
+            coinTexture = TextureIO.newTexture(new File(coin), true);
+            String monkey = "resources/" + roomName + "/objectTextures/monkey.jpg";
+            monkeyTexture = TextureIO.newTexture(new File(monkey), true);
+
+            //room texture
+            String leftWall = "resources/" + roomName + "/roomTextures/leftWall.jpg";
+            leftWallTexture = TextureIO.newTexture(new File(leftWall), true);
+            String rightWall = "resources/" + roomName + "/roomTextures/rightWall.jpg";
+            rightWallTexture = TextureIO.newTexture(new File(rightWall), true);
+            String backWall = "resources/" + roomName + "/roomTextures/backWall.jpg";
+            backWallTexture = TextureIO.newTexture(new File(backWall), true);
+            String frontWall = "resources/" + roomName + "/roomTextures/frontWall.jpg";
+            frontWallTexture = TextureIO.newTexture(new File(frontWall), true);
+            String ceiling = "resources/" + roomName + "/roomTextures/ceiling.jpg";
+            ceilingTexture = TextureIO.newTexture(new File(ceiling), true);
+            String floor = "resources/" + roomName + "/roomTextures/floor.jpg";
+            floorTexture = TextureIO.newTexture(new File(floor), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void loadObjects() {
+        coinModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/coin.obj");
+        monkeyModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/monkey.obj");
+        initializeCoinsCoordinates();
+        initializeMonkeysCoordinates();
+    }
+
+    public void initializeMonkeysCoordinates() {
+        float[] monkey1 = {-120,-50,-10};
+        float[] monkey2 = {120,-50,-10};
+        monkeys = new ArrayList() {{
+            add(monkey1);
+            add(monkey2);
+        }};
+    }
+
+    public void initializeCoinsCoordinates() {
+        float[] coin1 = {-90,-90,-200};
+        float[] coin2 = {90,-90,-200};
+        float[] coin3 = {-45,90,-100};
+        float[] coin4 = {45,90,-100};
+        float[] coin5 = {0,50,0};
+        float[] coin6 = {-45,20,100};
+        float[] coin7 = {45,20,100};
+        float[] coin8 = {-90,-90,200};
+        float[] coin9 = {90,-90,200};
+        coins = new ArrayList() {{
+            add(coin1);
+            add(coin2);
+            add(coin3);
+            add(coin4);
+            add(coin5);
+            add(coin6);
+            add(coin7);
+            add(coin8);
+            add(coin9);
+        }};
+    }
 
     public void reshape(GLAutoDrawable drawable, int x,
                         int y, int width, int height) {
@@ -409,7 +482,7 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
 
 
     public static void start() {
-        canvas.addGLEventListener(new FourthRoom());
+        canvas.addGLEventListener(new FirstRoomAndLoader());
         frame.add(canvas);
         frame.setSize(3000, 2000);
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
