@@ -335,14 +335,9 @@ public class FourthRoom extends KeyAdapter implements GLEventListener {
                 UIsPressed = true;
                 player.camMove(1, "Z");
                 break;
-            /**deal with!:   /** deal:
-             case KeyEvent.VK_F1:
-             UIsPressed = true;
-             player.camMove(1,"Z");
-             case KeyEvent.VK_F2:
-             UIsPressed = true;
-             player.camMove(1,"Z");
-             break;*/
+            case KeyEvent.VK_F1:
+                F1Screen.show();
+                break;
             default:
                 break;
         }
@@ -403,6 +398,9 @@ public class FourthRoom extends KeyAdapter implements GLEventListener {
                 exit(false);
                 FirstRoomAndLoader f = new FirstRoomAndLoader();
                 f.start();
+                break;
+            case KeyEvent.VK_F4:
+                Coin.useCoin();
                 break;
             default:
                 break;

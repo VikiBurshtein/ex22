@@ -11,6 +11,7 @@ import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.glu.GLU;
 
+import Collide.CollisionCheck;
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyAdapter;
 import com.jogamp.newt.event.KeyEvent;
@@ -262,11 +263,19 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
             //player movement:
             case KeyEvent.VK_W:
                 WIsPressed = true;
-                player.move(0, 0, 11);
+                if(!CollisionCheck.isHit())/**
+                 here i need the corrdinates of all
+                 the boxes and skys
+                 and moving objects(in the moment) of
+                 this level in static local(in the class)
+                 - for doors arrows ,trophie, and lasers its diffeneret(not just blocking
+                 but changing the gameplay) , btw after the throphie goes up and there's fireworks for 10 seconds the system exits with good bye :)*/
+                    player.move(0, 0, 11);
                 break;
             case KeyEvent.VK_S:
                 SIsPressed = true;
-                player.move(0, 0, -11);
+                if(!CollisionCheck.isHit())
+                    player.move(0, 0, -11);
                 break;
             case KeyEvent.VK_D:
                 DIsPressed = true;
@@ -308,6 +317,9 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
             case KeyEvent.VK_U:
                 UIsPressed = true;
                 player.camMove(1, "Z");
+                break;
+            case KeyEvent.VK_F1:
+                F1Screen.show();
                 break;
             default:
                 break;
@@ -374,6 +386,9 @@ public class SecondRoom extends KeyAdapter implements GLEventListener {
                 exit(false);
                 FirstRoomAndLoader f = new FirstRoomAndLoader();
                 f.start();
+                break;
+            case KeyEvent.VK_F4:
+                Coin.useCoin();
                 break;
             default:
                 break;

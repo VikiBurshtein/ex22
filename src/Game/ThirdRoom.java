@@ -582,6 +582,9 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
                 UIsPressed = true;
                 player.camMove(1, "Z");
                 break;
+            case KeyEvent.VK_F1:
+                F1Screen.show();
+                break;
             default:
                 break;
         }
@@ -647,6 +650,9 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
                 exit(false);
                 FirstRoomAndLoader f = new FirstRoomAndLoader();
                 f.start();
+                break;
+            case KeyEvent.VK_F4:
+                Coin.useCoin();
                 break;
             default:
                 break;

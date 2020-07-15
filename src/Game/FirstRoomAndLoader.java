@@ -463,6 +463,9 @@ public class FirstRoomAndLoader extends KeyAdapter implements GLEventListener {
                 exit(false);
                 start();
                 break;
+            case KeyEvent.VK_F4:
+                Coin.useCoin();
+                break;
             default:
                 break;
         }
