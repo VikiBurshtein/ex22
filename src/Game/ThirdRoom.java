@@ -1,5 +1,6 @@
 package Game;//names ids
 
+import Collide.CollisionCheck;
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyAdapter;
 import com.jogamp.newt.event.KeyEvent;
@@ -18,6 +19,8 @@ import javax.media.opengl.glu.GLU;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ThirdRoom extends KeyAdapter implements GLEventListener {
     private String roomName = "thirdRoom";
@@ -42,7 +45,8 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
     private float VerticalLaserValue = -100.0f;
     private boolean laserGoingRight = true;
     private HealthBar healthBar;
-
+    private static List<List<float[]>> objectsInTheRoom = new ArrayList<>();
+    private static boolean immune = false;
 
     public void display(GLAutoDrawable gLDrawable) {
         final GL2 gl = gLDrawable.getGL().getGL2();
@@ -528,6 +532,10 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
     }
 
     public void keyPressed(KeyEvent e) {
+        int moveType = 0;//0 for normal move, 1 for camera move, 2 for none
+        float[] move = new float[3];
+        float angle = 0;
+        String axis = "";
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
                 exit(true);
@@ -535,58 +543,114 @@ public class ThirdRoom extends KeyAdapter implements GLEventListener {
             //player movement:
             case KeyEvent.VK_W:
                 WIsPressed = true;
-                player.move(0, 0, 11);
+                move[0] = 0;
+                move[1] = 0;
+                move[2] = 11;
                 break;
             case KeyEvent.VK_S:
                 SIsPressed = true;
-                player.move(0, 0, -11);
+                move[0] = 0;
+                move[1] = 0;
+                move[2] = -11;
                 break;
             case KeyEvent.VK_D:
                 DIsPressed = true;
-                player.move(11, 0, 0);
+                move[0] = 11;
+                move[1] = 0;
+                move[2] = 0;
                 break;
             case KeyEvent.VK_A:
                 AIsPressed = true;
-                player.move(-11, 0, 0);
+                move[0] = -11;
+                move[1] = 0;
+                move[2] = 0;
                 break;
             case KeyEvent.VK_E:
                 EIsPressed = true;
-                player.move(0, 11, 0);
+                move[0] = 0;
+                move[1] = 11;
+                move[2] = 0;
                 break;
             case KeyEvent.VK_Q:
                 QIsPressed = true;
-                player.move(0, -11, 0);
+                move[0] = 0;
+                move[1] = -11;
+                move[2] = 0;
                 break;
             //camera movement:
             case KeyEvent.VK_I:
                 IIsPressed = true;
-                player.camMove(1, "X");
+                angle = 1;
+                axis = "X";
+                moveType = 1;
                 break;
             case KeyEvent.VK_K:
                 KIsPressed = true;
-                player.camMove(-1, "X");
+                angle = -1;
+                axis = "X";
+                moveType = 1;
                 break;
             case KeyEvent.VK_L:
                 LIsPressed = true;
-                player.camMove(-1, "Y");
+                angle = -1;
+                axis = "Y";
+                moveType = 1;
                 break;
             case KeyEvent.VK_J:
                 JIsPressed = true;
-                player.camMove(1, "Y");
+                angle = 1;
+                axis = "Y";
+                moveType = 1;
                 break;
             case KeyEvent.VK_O:
                 OIsPressed = true;
-                player.camMove(-1, "Z");
+                angle = -1;
+                axis = "Z";
+                moveType = 1;
                 break;
             case KeyEvent.VK_U:
                 UIsPressed = true;
-                player.camMove(1, "Z");
+                angle = 1;
+                axis = "Z";
+                moveType = 1;
                 break;
+            //instructions:
             case KeyEvent.VK_F1:
-                F1Screen.show();
+                moveType = 2;
                 break;
             default:
                 break;
+        }
+        if(moveType == 0){
+            float[] futurePlace;
+            futurePlace = player.getFuturePlaceOfMove(move[0],move[1],move[2]);
+            int whatToDo = CollisionCheck.isHitAndInstruction(objectsInTheRoom, futurePlace);
+            switch (whatToDo){
+                case 0:
+                    //no collisions:
+                    player.move(move[0],move[1],move[2]);
+                    break;
+                case 1:
+                    //hurt
+                    if(!immune){
+                        //immune = true; - delete comment
+                        //hurt - make immune for 1 second and make thread that makes that false back after 1 sec.
+                        //show hurt and down one life:
+                    }
+                    break;
+                case 2:
+                    //
+
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if(moveType == 1){
+            player.camMove(angle,axis);
+        }
+        else{//2
+            F1Screen.show();
         }
     }
 

@@ -1,8 +1,24 @@
 package Collide;
 
+import java.util.List;
 import java.util.Vector;
 
 public class CollisionCheck {
+
+    /** main func
+     * returns number for what to do next for each type of object:
+     * 0 for no collisions
+     * 1 for
+     * 2 for
+     * ...
+     */
+    public static int isHitAndInstruction(List<List<float[]>> objects, float[] currCoordinates){
+//        check for each type of object if there was a collision
+//        List<float[]> monkeys = objects.get(0);
+//        List<float[]> coins = objects.get(1);
+//        ...
+        return 0;
+    }
 
     /**
      * check collision between a ball/coin and a point
@@ -61,4 +77,6 @@ public class CollisionCheck {
      * check collision between a point and a sky/wall
      */
 }
+
+
 

@@ -11,6 +11,7 @@ public class PlayerLogic{
     public float moveQuanity;
     public float angle;
     public float coordiTranslation[][] = new float[3][3];
+    private float tmpcoordiTranslation[][] = new float[3][3];
 
     public PlayerLogic(float move, float angle) {
 
@@ -38,9 +39,22 @@ public class PlayerLogic{
 
     public void setTransMatrix() {
         for (int i = 0; i < 3; i++) {
+            tmpcoordiTranslation[i][0] = coordiTranslation[i][0];
+            tmpcoordiTranslation[i][1] = coordiTranslation[i][1];
+            tmpcoordiTranslation[i][2] = coordiTranslation[i][2];
+        }
+        for (int i = 0; i < 3; i++) {
             coordiTranslation[i][0] = xAxis[i];
             coordiTranslation[i][1] = yAxis[i];
             coordiTranslation[i][2] = zAxis[i];
+        }
+    }
+
+    private void reverseSetTransMatrix(){
+        for (int i = 0; i < 3; i++) {
+            coordiTranslation[i][0] = tmpcoordiTranslation[i][0];
+            coordiTranslation[i][1] = tmpcoordiTranslation[i][1];
+            coordiTranslation[i][2] = tmpcoordiTranslation[i][2];
         }
     }
 
@@ -69,6 +83,21 @@ public class PlayerLogic{
         pos[0] = pos[0] + moveQuanity*trans_move[0];
         pos[1] = pos[1] + moveQuanity*trans_move[1];
         pos[2] = pos[2] + moveQuanity*trans_move[2];
+    }
+
+    public float[] getFuturePlaceOfMove(float x_move, float y_move, float z_move) {
+        float[] move = new float[3];
+        move[0] = x_move;
+        move[1] = y_move;
+        move[2] = z_move;
+        setTransMatrix();
+        float[] trans_move = transVector(move);
+        float[] future = new float[3];
+        future[0] = pos[0] + moveQuanity*trans_move[0];
+        future[1] = pos[1] + moveQuanity*trans_move[1];
+        future[2] = pos[2] + moveQuanity*trans_move[2];
+        reverseSetTransMatrix();
+        return future;
     }
 
 
