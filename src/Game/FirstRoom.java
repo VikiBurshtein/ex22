@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class FirstRoomAndLoader extends BaseRoom {
+public class FirstRoom extends BaseRoom {
     private Texture coinTexture, monkeyTexture, arrowTexture;
     private WavefrontObjectLoader_DisplayList coinModel, monkeyModel, arrowModel;
     private ObjectsForCollision monkeys = new ObjectsForCollision();
@@ -19,7 +19,7 @@ public class FirstRoomAndLoader extends BaseRoom {
 
     private boolean monkeyUp = false;
 
-    FirstRoomAndLoader() {
+    FirstRoom() {
         roomName = "firstRoom";
         roomWidth = 200.0f;
         roomHeight = 100.0f;
@@ -172,34 +172,5 @@ public class FirstRoomAndLoader extends BaseRoom {
         }
     }
 
-    public static void startGame() {
-        canvas.addGLEventListener(new FourthRoom());
-        frame.add(canvas);
-        frame.setSize(3000, 2000);
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent e) {
-                // Run this on another thread than the AWT event queue to
-                // make sure the call to Animator.stop() completes before
-                // exiting
-                new Thread(new Runnable() {
-                    public void run() {
-                        animator.stop();
-                        System.exit(0);
-                    }
-                }).start();
-            }
-        });
-        frame.setVisible(true);
-        animator.start();
-        canvas.requestFocus();
-    }
 
-    @Override
-    public BaseRoom getSelfObj() {
-        return new FirstRoomAndLoader();
-    }
-
-    public static void main(String[] args) {
-        startGame();
-    }
 }

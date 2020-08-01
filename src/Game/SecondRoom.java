@@ -67,8 +67,5 @@ public class SecondRoom extends BaseRoom {
 
     }
 
-    @Override
-    public BaseRoom getSelfObj() {
-        return new SecondRoom();
-    }
+
 }

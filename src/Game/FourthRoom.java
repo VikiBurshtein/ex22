@@ -95,8 +95,5 @@ public class FourthRoom extends BaseRoom {
 
     }
 
-    @Override
-    public BaseRoom getSelfObj() {
-        return new FourthRoom();
-    }
+
 }

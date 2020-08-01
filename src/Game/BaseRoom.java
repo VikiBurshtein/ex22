@@ -1,6 +1,5 @@
 package Game;
 
-import Collide.CollisionCheck;
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyAdapter;
 import com.jogamp.newt.event.KeyEvent;
@@ -38,6 +37,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public static GLCanvas canvas = new GLCanvas();
     public static Animator animator = new Animator(canvas);
     public String roomName;
+    /** */
     public static List<List<float[]>> objects = new ArrayList<>();
 
     @Override
@@ -326,7 +326,8 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 player.camMove(1, "Z");
                 break;
             case KeyEvent.VK_F1:
-                F1Screen.show();
+                F1Screen f1 = new F1Screen(roomName);
+                f1.show();
                 break;
             default:
                 break;
@@ -384,15 +385,20 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 break;
             case KeyEvent.VK_U:
                 UIsPressed = false;
+                break;
             case KeyEvent.VK_F2:
-                exit(false);
-                FourthRoom fr = new FourthRoom();
-                //fr.start();
+                if(roomName.equals("firstRoom")){
+                    Loader.runNewRoom("secondRoom");
+                }
+                else if(roomName.equals("secondRoom")){
+                    Loader.runNewRoom("thirdRoom");
+                }
+                else if(roomName.equals("thirdRoom")){
+                    Loader.runNewRoom("fourthRoom");
+                }
                 break;
             case KeyEvent.VK_F3:
-                exit(false);
-                FirstRoomAndLoader f = new FirstRoomAndLoader();
-                f.start();
+                Loader.runNewRoom("firstRoom");
                 break;
             case KeyEvent.VK_F4:
                 Coin.useCoin();
@@ -410,12 +416,10 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         }
     }
 
-    public BaseRoom getSelfObj() {
-        return null;
-    }
+
 
     public void start() {
-        canvas.addGLEventListener(getSelfObj());
+        canvas.addGLEventListener(this);
         frame.add(canvas);
         frame.setSize(3000, 2000);
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -435,4 +439,5 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         animator.start();
         canvas.requestFocus();
     }
+
 }

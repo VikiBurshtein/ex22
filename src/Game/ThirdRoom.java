@@ -148,8 +148,5 @@ public class ThirdRoom extends BaseRoom {
         }};
     }
 
-    @Override
-    public BaseRoom getSelfObj() {
-        return new ThirdRoom();
-    }
+
 }
