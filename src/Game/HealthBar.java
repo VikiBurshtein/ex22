@@ -3,8 +3,6 @@ package Game;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
-import javax.imageio.ImageIO;
-import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2GL3;
 import java.awt.*;
@@ -41,11 +39,11 @@ public class HealthBar {
     public void setHealthBar(){
         String texture;
         if(healthScore == 100){
-            texture = "resources/thirdRoom/objectTextures/health100.png";
+            texture = "resources/health100.png";
         } else if(healthScore == 50){
-            texture = "resources/thirdRoom/objectTextures/health50.png";
+            texture = "resources/health50.png";
         } else {
-            texture = "resources/thirdRoom/objectTextures/health0.png";
+            texture = "resources/health0.png";
         }
         try{
             healthBarTexture = TextureIO.newTexture(new File(texture), true);

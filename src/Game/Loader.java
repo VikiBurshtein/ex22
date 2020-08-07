@@ -11,8 +11,10 @@ public class Loader {
 
     public static void runNewRoom(String roomName){
         room.exit(false);
-        room = null;
-        if(roomName.equals("secondRoom")){
+        if(roomName.equals("firstRoom")){
+            room = new FirstRoom();
+        }
+        else if(roomName.equals("secondRoom")){
             room = new SecondRoom();
         }
         else if(roomName.equals("thirdRoom")){

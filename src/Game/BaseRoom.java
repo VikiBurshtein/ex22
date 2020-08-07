@@ -26,25 +26,32 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public float stepQuanity = 0.2f;
     public float camAngle = 2;
     public HealthBar healthBar;
-    public static GLU glu = new GLU();
+    public F1Screen f1Screen;
+    public boolean showF1 = false;
+
     public Texture leftWallTexture, rightWallTexture, frontWallTexture,
             backWallTexture, ceilingTexture, floorTexture;
     public float roomWidth,roomHeight,roomDepth;
     public float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
     public boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
             IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
-    public static Frame frame = new Frame("");
-    public static GLCanvas canvas = new GLCanvas();
-    public static Animator animator = new Animator(canvas);
+
+    public static GLCanvas canvas;
+    public static Animator animator;
+    public static List<List<float[]>> objects;
+    public static GLU glu;
+    public static Frame frame;
+
     public String roomName;
     /** */
-    public static List<List<float[]>> objects = new ArrayList<>();
+
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         player = new PlayerLogic(stepQuanity, camAngle);
         final GL2 gl = glAutoDrawable.getGL().getGL2();
         healthBar = new HealthBar();
+        f1Screen = new F1Screen(roomName);
         gl.glShadeModel(GL2.GL_SMOOTH);              // Enable Smooth Shading
         gl.glClearColor(0.0f, 0.0f, 2.0f, 0.0f);    // Background
         gl.glClearDepth(1.0f);                      // Depth Buffer Setup
@@ -152,6 +159,25 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glPopMatrix();
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         gl.glPopMatrix();
+    }
+
+    public void drawF1(GL2 gl, boolean show) {
+        if(show) {
+            //set to ortho matrix to draw in 2d
+            gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+            gl.glPushMatrix();
+            gl.glLoadIdentity();
+            gl.glOrtho(-0.5f, 10f, -10f, 0.5f, -1f, 1f);
+            gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+            gl.glPushMatrix();
+            gl.glLoadIdentity();
+            f1Screen.drawF1(gl);
+            //return the PROJECTION matrix and then to vm
+            gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+            gl.glPopMatrix();
+            gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+            gl.glPopMatrix();
+        }
     }
 
     public void drawRoom(GL2 gl) {
@@ -326,8 +352,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 player.camMove(1, "Z");
                 break;
             case KeyEvent.VK_F1:
-                F1Screen f1 = new F1Screen(roomName);
-                f1.show();
+                showF1 = true;
                 break;
             default:
                 break;
@@ -386,6 +411,9 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             case KeyEvent.VK_U:
                 UIsPressed = false;
                 break;
+            case KeyEvent.VK_F1:
+                showF1 = false;
+                break;
             case KeyEvent.VK_F2:
                 if(roomName.equals("firstRoom")){
                     Loader.runNewRoom("secondRoom");
@@ -410,12 +438,21 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     public static void exit(boolean system) {
         animator.stop();
+        frame.remove(canvas);
         frame.dispose();
+        restart();
         if (system) {
             System.exit(0);
         }
     }
 
+    public static void restart(){
+        glu = null;
+        frame = null;
+        canvas = null;
+        animator = null;
+        objects = null;
+    }
 
 
     public void start() {
@@ -439,5 +476,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         animator.start();
         canvas.requestFocus();
     }
+
 
 }

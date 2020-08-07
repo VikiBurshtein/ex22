@@ -3,6 +3,7 @@ package Game;//names ids
 import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
@@ -30,6 +31,11 @@ public class SecondRoom extends BaseRoom {
         roomWidth = 414.0f;
         roomHeight = 100.0f;
         roomDepth = 416.0f;
+        canvas = new GLCanvas();
+        animator = new Animator(canvas);
+        objects = new ArrayList<>();
+        glu = new GLU();
+        frame = new Frame("");
     }
 
     public void drawObjects(GL2 gl) {

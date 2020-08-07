@@ -1,9 +1,13 @@
 package Game;//names ids
 
+import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 import javax.media.opengl.GL2;
+import javax.media.opengl.awt.GLCanvas;
+import javax.media.opengl.glu.GLU;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +28,11 @@ public class ThirdRoom extends BaseRoom {
         roomWidth = 100.0f;
         roomHeight = 100.0f;
         roomDepth = 400.0f;
+        canvas = new GLCanvas();
+        animator = new Animator(canvas);
+        objects = new ArrayList<>();
+        glu = new GLU();
+        frame = new Frame("");
     }
 
     public void drawObjects(GL2 gl) {
