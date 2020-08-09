@@ -31,19 +31,23 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     public Texture leftWallTexture, rightWallTexture, frontWallTexture,
             backWallTexture, ceilingTexture, floorTexture;
-    public float roomWidth,roomHeight,roomDepth;
+    public float roomWidth, roomHeight, roomDepth;
     public float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
     public boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
             IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
 
     public static GLCanvas canvas;
     public static Animator animator;
+    //<coins><monkeys><arrows><sharks><horizontalLasers><verticalLasers><table><goblet><spikes><path>
     public static List<List<float[]>> objects;
     public static GLU glu;
     public static Frame frame;
 
     public String roomName;
-    /** */
+
+    /**
+     *
+     */
 
 
     @Override
@@ -134,10 +138,13 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         glu.gluLookAt(player.pos[0], player.pos[1], player.pos[2],//Specifies the position of the eye point.
                 player.look[0], player.look[1], player.look[2], //Specifies the position of the reference point.
                 player.yAxis[0], player.yAxis[1], player.yAxis[2]); //Specifies the direction of the up vector.
-
         drawRoom(gl);
-        drawObjects(gl);
-        updateObjectsList();
+        if(!showF1) {
+            drawObjects(gl);
+            updateObjectsList();
+        }else{
+            drawF1(gl);
+        }
     }
 
     abstract public void updateObjectsList();
@@ -161,23 +168,21 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glPopMatrix();
     }
 
-    public void drawF1(GL2 gl, boolean show) {
-        if(show) {
-            //set to ortho matrix to draw in 2d
-            gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
-            gl.glPushMatrix();
-            gl.glLoadIdentity();
-            gl.glOrtho(-0.5f, 10f, -10f, 0.5f, -1f, 1f);
-            gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-            gl.glPushMatrix();
-            gl.glLoadIdentity();
-            f1Screen.drawF1(gl);
-            //return the PROJECTION matrix and then to vm
-            gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
-            gl.glPopMatrix();
-            gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-            gl.glPopMatrix();
-        }
+    public void drawF1(GL2 gl) {
+        //set to ortho matrix to draw in 2d
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        gl.glOrtho(-0.5f, 10f, -10f, 0.5f, -1f, 1f);
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        f1Screen.drawF1(gl);
+        //return the PROJECTION matrix and then to vm
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPopMatrix();
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPopMatrix();
     }
 
     public void drawRoom(GL2 gl) {
@@ -303,12 +308,12 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 //                 this level in static local(in the class)
 //                 - for doors arrows ,trophie, and lasers its diffeneret(not just blocking
 //                 but changing the gameplay) , btw after the throphie goes up and there's fireworks for 10 seconds the system exits with good bye :)*/
-                    player.move(0, 0, 11);
+                player.move(0, 0, 11);
                 break;
             case KeyEvent.VK_S:
                 SIsPressed = true;
 //                if(!CollisionCheck.isHit())
-                    player.move(0, 0, -11);
+                player.move(0, 0, -11);
                 break;
             case KeyEvent.VK_D:
                 DIsPressed = true;
@@ -415,13 +420,11 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 showF1 = false;
                 break;
             case KeyEvent.VK_F2:
-                if(roomName.equals("firstRoom")){
+                if (roomName.equals("firstRoom")) {
                     Loader.runNewRoom("secondRoom");
-                }
-                else if(roomName.equals("secondRoom")){
+                } else if (roomName.equals("secondRoom")) {
                     Loader.runNewRoom("thirdRoom");
-                }
-                else if(roomName.equals("thirdRoom")){
+                } else if (roomName.equals("thirdRoom")) {
                     Loader.runNewRoom("fourthRoom");
                 }
                 break;
@@ -446,7 +449,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         }
     }
 
-    public static void restart(){
+    public static void restart() {
         glu = null;
         frame = null;
         canvas = null;

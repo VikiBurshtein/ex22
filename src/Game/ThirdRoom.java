@@ -13,15 +13,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class ThirdRoom extends BaseRoom {
-    private Texture dynamicLasersTexture;
-    private WavefrontObjectLoader_DisplayList dynamicLasersModel;
+    private Texture coinTexture, dynamicLasersTexture;
+    private WavefrontObjectLoader_DisplayList coinModel, dynamicLasersModel;
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
     private ObjectsForCollision horizontalLasers = new ObjectsForCollision();
     private ObjectsForCollision verticalLasers = new ObjectsForCollision();
+    private ObjectsForCollision coins = new ObjectsForCollision();
 
     private boolean laserGoingDown = true;
     private boolean laserGoingRight = true;
-    private float lasersSpeed = 0.2f;
+    private float lasersSpeed = 0.05f;
 
     ThirdRoom() {
         roomName = "thirdRoom";
@@ -36,8 +37,26 @@ public class ThirdRoom extends BaseRoom {
     }
 
     public void drawObjects(GL2 gl) {
+        drawCoins(gl);
         drawLasers(gl);
         drawHealtbBar(gl);
+    }
+
+    public void drawOneCoin(GL2 gl, float[] coordinates) {
+        gl.glPushMatrix();
+        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
+        gl.glScalef(5, 5, 5);
+        gl.glRotatef(coins.getRotation(), 90, 90, 90);
+        coinTexture.bind(gl);
+        coinModel.drawModel(gl);
+        gl.glPopMatrix();
+    }
+
+    public void drawCoins(GL2 gl) {
+        for (int i = 0; i < coins.getSize(); i++) {
+            drawOneCoin(gl, coins.getObject(i));
+        }
+        coins.rotateBy(3);
     }
 
     public void drawLasers(GL2 gl) {
@@ -104,6 +123,8 @@ public class ThirdRoom extends BaseRoom {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
             //objects texture
+            String coin = "resources/basicObjects/textures/coin.jpg";
+            coinTexture = TextureIO.newTexture(new File(coin), true);
             String dynamicLasers = "resources/" + roomName + "/objectTextures/green.jpg";
             dynamicLasersTexture = TextureIO.newTexture(new File(dynamicLasers), true);
         } catch (IOException e) {
@@ -113,8 +134,22 @@ public class ThirdRoom extends BaseRoom {
         setRoomTextures(gl);
     }
     public void loadObjects() {
+        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         dynamicLasersModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/dynamicLaser.obj");
+        initializeCoinsCoordinates();
         initializeLasersCoordinates();
+    }
+
+    public void initializeCoinsCoordinates() {
+        coins.addObject(new float[]{-90, -90, -200});
+        coins.addObject(new float[]{90, -90, -200});
+        coins.addObject(new float[]{-45, 90, -100});
+        coins.addObject(new float[]{45, 90, -100});
+        coins.addObject(new float[]{0, 50, 0});
+        coins.addObject(new float[]{-45, 20, 100});
+        coins.addObject(new float[]{45, 20, 100});
+        coins.addObject(new float[]{-90, -90, 200});
+        coins.addObject(new float[]{90, -90, 200});
     }
 
     public void initializeLasersCoordinates() {
@@ -151,11 +186,18 @@ public class ThirdRoom extends BaseRoom {
 
     @Override
     public void updateObjectsList() {
+        //<coins><monkeys><arrows><sharks><horizontalLasers><verticalLasers><table><goblet><spikes><path>
         objects = new ArrayList() {{
+            add(coins.getObjectsList());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
             add(horizontalLasers.getObjectsList());
             add(verticalLasers.getObjectsList());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
         }};
     }
-
-
 }

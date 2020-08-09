@@ -39,11 +39,11 @@ public class HealthBar {
     public void setHealthBar(){
         String texture;
         if(healthScore == 100){
-            texture = "resources/health100.png";
+            texture = "resources/screenTextures/health100.png";
         } else if(healthScore == 50){
-            texture = "resources/health50.png";
+            texture = "resources/screenTextures/health50.png";
         } else {
-            texture = "resources/health0.png";
+            texture = "resources/screenTextures/health0.png";
         }
         try{
             healthBarTexture = TextureIO.newTexture(new File(texture), true);

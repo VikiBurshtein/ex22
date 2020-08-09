@@ -36,7 +36,7 @@ public class F1Screen {
     }
 
     public void setF1Screen(){
-        String texture = "resources/f1.jpg";
+        String texture = "resources/screenTextures/f1.jpg";
         try{
             f1Texture = TextureIO.newTexture(new File(texture), true);
         }
@@ -56,19 +56,20 @@ public class F1Screen {
         gl.glBegin(GL2GL3.GL_QUADS);
 
         gl.glTexCoord2f(0, 0);
-        gl.glVertex2f(-0.25f, 0);
+        gl.glVertex2f(-0.25f, -9.5f);
 
         gl.glTexCoord2f(1, 0);
-        gl.glVertex2f(9.75f, 0);
+        gl.glVertex2f(9.75f, -9.5f);
 
         gl.glTexCoord2f(1, 1);
-        gl.glVertex2f(9.75f, 10f);
+        gl.glVertex2f(9.75f, 0f);
 
         gl.glTexCoord2f(0, 1);
-        gl.glVertex2f(-0.25f, 10f);
+        gl.glVertex2f(-0.25f, 0f);
 
 
         gl.glEnd();
+
     }
 
 }

@@ -36,10 +36,18 @@ public class FirstRoom extends BaseRoom {
     }
 
     public void updateObjectsList(){
+        //<coins><monkeys><arrows><sharks><horizontalLasers><verticalLasers><table><goblet><spikes><path>
         objects = new ArrayList() {{
+            add(coins.getObjectsList());
             add(monkeys.getObjectsList());
             add(arrows.getObjectsList());
-            add(coins.getObjectsList());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
+            add(new ObjectsForCollision());
         }};
     }
 
@@ -48,7 +56,6 @@ public class FirstRoom extends BaseRoom {
         drawMonkeys(gl);
         drawArrows(gl);
         drawHealtbBar(gl);
-        drawF1(gl, showF1);
     }
 
     public void drawArrows(GL2 gl) {
@@ -133,7 +140,7 @@ public class FirstRoom extends BaseRoom {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
             //objects texture
-            String coin = "resources/" + roomName + "/objectTextures/coin.jpg";
+            String coin = "resources/basicObjects/textures/coin.jpg";
             coinTexture = TextureIO.newTexture(new File(coin), true);
             String monkey = "resources/" + roomName + "/objectTextures/monkey.jpg";
             monkeyTexture = TextureIO.newTexture(new File(monkey), true);
@@ -147,7 +154,7 @@ public class FirstRoom extends BaseRoom {
     }
 
     public void loadObjects() {
-        coinModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/coin.obj");
+        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         monkeyModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/monkey.obj");
         arrowModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/arrow.obj");
         initializeCoinsCoordinates();
@@ -181,6 +188,4 @@ public class FirstRoom extends BaseRoom {
             arrows.addObject(new float[] {monkey[0],monkey[1] - 10,monkey[2]});
         }
     }
-
-
 }
