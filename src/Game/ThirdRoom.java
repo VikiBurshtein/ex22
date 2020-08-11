@@ -186,7 +186,7 @@ public class ThirdRoom extends BaseRoom {
 
     @Override
     public void updateObjectsList() {
-        //<Coins><Lasers horizon><Lasers vertical><Door><ceiling><floor><Left wall><Right wall><Back wall><Front Wall>
+        //<Coins><Lasers horizontal><Lasers vertical><Door><Left wall><Right wall><ceiling><floor><Back wall><Front Wall>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
             add(new ObjectsForCollision());

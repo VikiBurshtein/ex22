@@ -188,7 +188,7 @@ public class FourthRoom extends BaseRoom {
 
     @Override
     public void updateObjectsList() {
-        //<Coins><Square of the spikes><The Table of the goblet><ceiling><floor><Left wall><Right wall><Back wall><Front Wall>
+        //<Coins><Square of the spikes><The Table of the goblet><Left wall><Right wall><ceiling><floor><Back wall><Front Wall>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
             add(new ObjectsForCollision());

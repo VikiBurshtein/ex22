@@ -36,7 +36,7 @@ public class FirstRoom extends BaseRoom {
     }
 
     public void updateObjectsList(){
-        //<Coins><Monkeys><Arrows><Door><ceiling><floor><Left wall><Right wall><Back wall><Front Wall>
+        //<Coins><Monkeys><Arrows><Door><Left wall><Right wall><ceiling><floor><Back wall><Front Wall>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
             add(monkeys.getObjectsList());
