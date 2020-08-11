@@ -162,7 +162,7 @@ public class SecondRoom extends BaseRoom {
 
     @Override
     public void updateObjectsList() {
-        //<coins><monkeys><arrows><sharks><horizontalLasers><verticalLasers><table><goblet><spikes><path>
+        //<Coins><Path1><Path2><Path3><Path4><Path5><Door>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
             add(new ObjectsForCollision());
