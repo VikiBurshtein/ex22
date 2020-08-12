@@ -13,16 +13,25 @@ public class PlayerLogic{
     public float coordiTranslation[][] = new float[3][3];
     private float tmpcoordiTranslation[][] = new float[3][3];
 
-    public PlayerLogic(float move, float angle) {
+    public PlayerLogic(float move, float angle, float xA, float yA, float zA, float pos0, float pos1, float pos2) {
 
         //start point
-        xAxis[0] = 1;
-        yAxis[1] = 1;
-        zAxis[2] = -1;
+        xAxis[0] = xA;
+        yAxis[1] = yA;
+        zAxis[2] = zA;
 
-        pos[0] = 0; //right left
-        pos[1] = 0;//up down
-        pos[2] = 399;//in out
+        pos[0] = pos0; //right left
+        pos[1] = pos1;//up down
+        pos[2] = pos2;//in out
+
+//        //start point
+//        xAxis[0] = 1;
+//        yAxis[1] = 1;
+//        zAxis[2] = -1;
+//
+//        pos[0] = 0; //right left
+//        pos[1] = 0;//up down
+//        pos[2] = 399;//in out
 
 
 //        xAxis[0] = 1;

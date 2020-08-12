@@ -18,6 +18,8 @@ public class FirstRoom extends BaseRoom {
     private ObjectsForCollision monkeys = new ObjectsForCollision();
     private ObjectsForCollision coins = new ObjectsForCollision();
     private ObjectsForCollision arrows = new ObjectsForCollision();
+    private ObjectsForCollision doors = new ObjectsForCollision();
+
 
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
 
@@ -25,6 +27,7 @@ public class FirstRoom extends BaseRoom {
 
     FirstRoom() {
         roomName = "firstRoom";
+        roomNameToShow = "First Room";
         roomWidth = 200.0f;
         roomHeight = 100.0f;
         roomDepth = 400.0f;
@@ -33,6 +36,7 @@ public class FirstRoom extends BaseRoom {
         objects = new ArrayList<>();
         glu = new GLU();
         frame = new Frame("");
+
     }
 
     public void updateObjectsList(){
@@ -41,13 +45,13 @@ public class FirstRoom extends BaseRoom {
             add(coins.getObjectsList());
             add(monkeys.getObjectsList());
             add(arrows.getObjectsList());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
+            add(doors);
+            add(leftWall);
+            add(rightWall);
+            add(ceiling);
+            add(floor);
+            add(backWall);
+            add(frontWall);
         }};
     }
 
@@ -160,6 +164,27 @@ public class FirstRoom extends BaseRoom {
         initializeCoinsCoordinates();
         initializeMonkeysCoordinates();
         initializeArrowsCoordinates();
+        initializeWallsCoordinates();
+        initializeDoorCoordinates();
+    }
+
+    public void initializeWallsCoordinates() {
+        leftWall = new ObjectsForCollision();
+        rightWall = new ObjectsForCollision();
+        ceiling = new ObjectsForCollision();
+        floor = new ObjectsForCollision();
+        frontWall = new ObjectsForCollision();
+        backWall = new ObjectsForCollision();
+        leftWall.addObject(new float[]{-200, 0, 0});
+        rightWall.addObject(new float[]{200, 0, 0});
+        ceiling.addObject(new float[]{100, 0, 0});
+        floor.addObject(new float[]{-100, 0, 0});
+        frontWall.addObject(new float[]{-400, 0, 0});
+        backWall.addObject(new float[]{400, 0, 0});
+    }
+
+    public void setPlayer(){
+        player = new PlayerLogic(stepQuanity, camAngle, 1, 1, -1, 0,0,399);
     }
 
     public void initializeMonkeysCoordinates() {
@@ -167,6 +192,10 @@ public class FirstRoom extends BaseRoom {
         float[] monkey1 = {120, -60, -10};
         monkeys.addObject(monkey0);
         monkeys.addObject(monkey1);
+    }
+
+    public void initializeDoorCoordinates() {
+        doors.addObject(new float[]{0, -10, 0});
     }
 
     public void initializeCoinsCoordinates() {

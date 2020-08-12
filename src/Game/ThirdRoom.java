@@ -14,18 +14,20 @@ import java.util.ArrayList;
 
 public class ThirdRoom extends BaseRoom {
     private Texture coinTexture, dynamicLasersTexture;
-    private WavefrontObjectLoader_DisplayList coinModel, dynamicLasersModel;
+    private WavefrontObjectLoader_DisplayList coinModel, verticalLaserModel, horizontalLaserModel;
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
     private ObjectsForCollision horizontalLasers = new ObjectsForCollision();
     private ObjectsForCollision verticalLasers = new ObjectsForCollision();
     private ObjectsForCollision coins = new ObjectsForCollision();
+    private ObjectsForCollision doors = new ObjectsForCollision();
 
     private boolean laserGoingDown = true;
     private boolean laserGoingRight = true;
-    private float lasersSpeed = 0.05f;
+    private float lasersSpeed = 0.1f;
 
     ThirdRoom() {
         roomName = "thirdRoom";
+        roomNameToShow = "Third Room";
         roomWidth = 100.0f;
         roomHeight = 100.0f;
         roomDepth = 400.0f;
@@ -65,10 +67,10 @@ public class ThirdRoom extends BaseRoom {
         for (int i = 0; i < horizontalLasers.getSize(); i++) {
             coordinates = horizontalLasers.getObject(i);
             //check if reached top or bottom and move
-            if (coordinates[1] > -80) {
+            if (coordinates[1] > 95) {
                 laserGoingDown = true;
             }
-            if (coordinates[1] < -270) {
+            if (coordinates[1] < -95) {
                 laserGoingDown = false;
             }
 
@@ -83,10 +85,10 @@ public class ThirdRoom extends BaseRoom {
         for (int i = 0; i < verticalLasers.getSize(); i++) {
             coordinates = verticalLasers.getObject(i);
             //check if reached top or bottom and move
-            if (coordinates[0] > 90) {
+            if (coordinates[0] > 95) {
                 laserGoingRight = false;
             }
-            if (coordinates[0] < -90) {
+            if (coordinates[0] < -95) {
                 laserGoingRight = true;
             }
 
@@ -102,19 +104,15 @@ public class ThirdRoom extends BaseRoom {
     public void drawOneVerticalLaser(GL2 gl, float[] coordinates) {
         gl.glPushMatrix();
         gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-        gl.glScalef(15, 15, 15);
-        gl.glRotatef(90, 90, 0, 0);
         dynamicLasersTexture.bind(gl);
-        dynamicLasersModel.drawModel(gl);
+        verticalLaserModel.drawModel(gl);
         gl.glPopMatrix();
     }
     public void drawOneHorizontalLaser(GL2 gl, float[] coordinates) {
         gl.glPushMatrix();
         gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-        gl.glScalef(15, 15, 15);
-        gl.glRotatef(90, 0, 90, 0);
         dynamicLasersTexture.bind(gl);
-        dynamicLasersModel.drawModel(gl);
+        horizontalLaserModel.drawModel(gl);
         gl.glPopMatrix();
     }
 
@@ -135,9 +133,31 @@ public class ThirdRoom extends BaseRoom {
     }
     public void loadObjects() {
         coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
-        dynamicLasersModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/dynamicLaser.obj");
+        verticalLaserModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/verticalLaser.obj");
+        horizontalLaserModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/horizontalLaser.obj");
         initializeCoinsCoordinates();
         initializeLasersCoordinates();
+        initializeWallsCoordinates();
+        initializeDoorCoordinates();
+    }
+
+    public void initializeDoorCoordinates() {
+        doors.addObject(new float[]{0, -10, 0});
+    }
+
+    public void initializeWallsCoordinates() {
+        leftWall = new ObjectsForCollision();
+        rightWall = new ObjectsForCollision();
+        ceiling = new ObjectsForCollision();
+        floor = new ObjectsForCollision();
+        frontWall = new ObjectsForCollision();
+        backWall = new ObjectsForCollision();
+        leftWall.addObject(new float[]{-100, 0, 0});
+        rightWall.addObject(new float[]{100, 0, 0});
+        ceiling.addObject(new float[]{100, 0, 0});
+        floor.addObject(new float[]{-100, 0, 0});
+        frontWall.addObject(new float[]{-400, 0, 0});
+        backWall.addObject(new float[]{400, 0, 0});
     }
 
     public void initializeCoinsCoordinates() {
@@ -153,35 +173,18 @@ public class ThirdRoom extends BaseRoom {
     }
 
     public void initializeLasersCoordinates() {
-        float[] horizontalLaser1 = {5.0f, -100.0f, -250.0f};
-        float[] horizontalLaser2 = {5.0f, -100.0f, -150.0f};
-        float[] horizontalLaser3 = {5.0f, -100.0f, -50.0f};
-        float[] horizontalLaser4 = {5.0f, -100.0f, 50.0f};
-        float[] horizontalLaser5 = {5.0f, -100.0f, 150.0f};
-        float[] horizontalLaser6 = {5.0f, -100.0f, 250.0f};
+        horizontalLasers.addObject(new float[]{0, -100.0f, -250.0f});
+        horizontalLasers.addObject(new float[]{0, -100.0f, -50.0f});
+        horizontalLasers.addObject(new float[]{0, -100.0f, 150.0f});
 
-        horizontalLasers.addObject(horizontalLaser1);
-        horizontalLasers.addObject(horizontalLaser2);
-        horizontalLasers.addObject(horizontalLaser3);
-        horizontalLasers.addObject(horizontalLaser4);
-        horizontalLasers.addObject(horizontalLaser5);
-        horizontalLasers.addObject(horizontalLaser6);
+        verticalLasers.addObject(new float[] {-100.0f, -50, -300.0f});
+        verticalLasers.addObject(new float[] {-100.0f, -50, -100.0f});
+        verticalLasers.addObject(new float[] {-100.0f, -50, 100.0f});
+        verticalLasers.addObject(new float[] {-100.0f, -50, 300.0f});
+    }
 
-        float[] verticalLaser1 = {-100.0f, -50, -300.0f};
-        float[] verticalLaser2 = {-100.0f, -50, -200.0f};
-        float[] verticalLaser3 = {-100.0f, -50, -100.0f};
-        float[] verticalLaser4 = {-100.0f, -50, 0.0f};
-        float[] verticalLaser5 = {-100.0f, -50, -100.0f};
-        float[] verticalLaser6 = {-100.0f, -50, -200.0f};
-        float[] verticalLaser7 = {-100.0f, -50, -300.0f};
-
-        verticalLasers.addObject(verticalLaser1);
-        verticalLasers.addObject(verticalLaser2);
-        verticalLasers.addObject(verticalLaser3);
-        verticalLasers.addObject(verticalLaser4);
-        verticalLasers.addObject(verticalLaser5);
-        verticalLasers.addObject(verticalLaser6);
-        verticalLasers.addObject(verticalLaser7);
+    public void setPlayer(){
+        player = new PlayerLogic(stepQuanity, camAngle, 1, 1, -1, 0,0,399);
     }
 
     @Override
@@ -189,15 +192,15 @@ public class ThirdRoom extends BaseRoom {
         //<Coins><Lasers horizontal><Lasers vertical><Door><Left wall><Right wall><ceiling><floor><Back wall><Front Wall>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
             add(horizontalLasers.getObjectsList());
             add(verticalLasers.getObjectsList());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
+            add(doors);
+            add(leftWall);
+            add(rightWall);
+            add(ceiling);
+            add(floor);
+            add(backWall);
+            add(frontWall);
         }};
     }
 }

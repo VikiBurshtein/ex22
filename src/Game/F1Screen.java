@@ -20,18 +20,6 @@ public class F1Screen {
     private static String instructions = "";
 
     public F1Screen(String roomName){
-        if(roomName.equals("firstRoom")){
-            instructions = "r1";
-        }
-        else if(roomName.equals("secondRoom")){
-            instructions = "r2";
-        }
-        else if(roomName.equals("thirdRoom")){
-            instructions = "r3";
-        }
-        else{//fourthRoom currently
-            instructions = "r4";
-        }
         setF1Screen();
     }
 

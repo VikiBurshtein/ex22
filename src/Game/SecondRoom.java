@@ -6,17 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.glu.GLU;
 
-import Collide.CollisionCheck;
-import com.jogamp.newt.Window;
-import com.jogamp.newt.event.KeyAdapter;
-import com.jogamp.newt.event.KeyEvent;
-import com.jogamp.newt.event.awt.AWTKeyAdapter;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
@@ -29,15 +21,18 @@ public class SecondRoom extends BaseRoom {
     private ObjectsForCollision paths = new ObjectsForCollision();
     private ObjectsForCollision sharks = new ObjectsForCollision();
     private ObjectsForCollision coins = new ObjectsForCollision();
+    private ObjectsForCollision doors = new ObjectsForCollision();
 
     private float sharksSpeed = 0.5f;
     private boolean sharkRight = true;
+    private boolean rotatePath;
 
     SecondRoom() {
         roomName = "secondRoom";
-        roomWidth = 414.0f;
+        roomNameToShow = "Second Room";
+        roomWidth = 400.0f;
         roomHeight = 100.0f;
-        roomDepth = 416.0f;
+        roomDepth = 400.0f;
         canvas = new GLCanvas();
         animator = new Animator(canvas);
         objects = new ArrayList<>();
@@ -49,11 +44,11 @@ public class SecondRoom extends BaseRoom {
         drawPath(gl);
         drawSharks(gl);
         drawCoins(gl);
-
         drawHealtbBar(gl);
     }
 
     public void drawPath(GL2 gl) {
+        rotatePath = false;
         for (int i = 0; i < paths.getSize(); i++) {
             drawOnePath(gl, paths.getObject(i));
         }
@@ -82,10 +77,10 @@ public class SecondRoom extends BaseRoom {
         for (int i = 0; i < sharks.getSize(); i++) {
             coordinates = sharks.getObject(i);
             //check if reached top or bottom and move
-            if (coordinates[0] > roomWidth - 100) {
+            if (coordinates[0] > roomWidth - 120) {
                 sharkRight = false;
             }
-            if (coordinates[0] < -(roomWidth - 100)) {
+            if (coordinates[0] < -(roomWidth - 120)) {
                 sharkRight = true;
             }
 
@@ -101,7 +96,13 @@ public class SecondRoom extends BaseRoom {
     public void drawOnePath(GL2 gl, float[] coordinates) {
         gl.glPushMatrix();
         gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-        gl.glScalef(15, 5, 20);
+        gl.glScalef(40, 15, 40);
+        if(rotatePath){
+            gl.glRotatef(90,0,90,0);
+            rotatePath = false;
+        } else {
+            rotatePath = true;
+        }
         pathTexture.bind(gl);
         pathModel.drawModel(gl);
         gl.glPopMatrix();
@@ -115,8 +116,6 @@ public class SecondRoom extends BaseRoom {
         sharkModel.drawModel(gl);
         gl.glPopMatrix();
     }
-
-
 
     public void setTextures(GL2 gl) {
         gl.glEnable(GL2.GL_TEXTURE_2D);
@@ -135,17 +134,31 @@ public class SecondRoom extends BaseRoom {
         setRoomTextures(gl);
     }
 
+    public void setPlayer(){
+        player = new PlayerLogic(stepQuanity, camAngle, 1, 1, -1, 0,0,399);
+    }
+
     public void loadObjects() {
         coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
-        initializeCoinsCoordinates();
         pathModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/path.obj");
-        initializePathsCoordinates();
         sharkModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/shark.obj");
+        initializeCoinsCoordinates();
+        initializePathsCoordinates();
         initializeSharksCoordinates();
+        initializeDoorCoordinates();
+    }
+
+    public void initializeDoorCoordinates() {
+        doors.addObject(new float[]{0, -10, 0});
     }
 
     public void initializePathsCoordinates() {
+        paths.addObject(new float[]{0, -100, -400});
+        paths.addObject(new float[]{-130, -100, 200});
         paths.addObject(new float[]{0, -100, 0});
+        paths.addObject(new float[]{130, -100, -200});
+        paths.addObject(new float[]{0, -100, 400});
+
     }
 
     public void initializeSharksCoordinates() {
@@ -154,26 +167,34 @@ public class SecondRoom extends BaseRoom {
     }
 
     public void initializeCoinsCoordinates() {
-        coins.addObject(new float[]{-90, -50, 0});
-        coins.addObject(new float[]{90, -50, 0});
-        coins.addObject(new float[]{-150, -50, 150});
-        coins.addObject(new float[]{150, -50, -150});
+        coins.addObject(new float[]{-90, -50, -380});
+        coins.addObject(new float[]{0, -50, -380});
+        coins.addObject(new float[]{90, -50, -380});
+
+        coins.addObject(new float[]{150, -50, -40});
+        coins.addObject(new float[]{130, -50, -200});
+        coins.addObject(new float[]{110, -50, -360});
+
+        coins.addObject(new float[]{-90, -50, -20});
+        coins.addObject(new float[]{0, -50, 0});
+        coins.addObject(new float[]{90, -50, 20});
+
+        coins.addObject(new float[]{-150, -50, 40});
+        coins.addObject(new float[]{-130, -50, 200});
+        coins.addObject(new float[]{-110, -50, 360});
+
+        coins.addObject(new float[]{-90, -50, 380});
+        coins.addObject(new float[]{0, -50, 380});
+        coins.addObject(new float[]{90, -50, 380});
     }
 
     @Override
     public void updateObjectsList() {
-        //<Coins><Path1><Path2><Path3><Path4><Path5><Door>
+        //<Coins><Paths><Door>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(sharks.getObjectsList());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
             add(paths.getObjectsList());
+            add(doors);
         }};
     }
 

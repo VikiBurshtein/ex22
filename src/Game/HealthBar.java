@@ -65,16 +65,16 @@ public class HealthBar {
         gl.glBegin(GL2GL3.GL_QUADS);
 
         gl.glTexCoord2f(0, 0);
-        gl.glVertex2f(-0.25f, 0);
+        gl.glVertex2f(-0.25f, -0.2f);
 
         gl.glTexCoord2f(1, 0);
-        gl.glVertex2f(1, 0);
+        gl.glVertex2f(1, -0.2f);
 
         gl.glTexCoord2f(1, 1);
-        gl.glVertex2f(1, 0.4f);
+        gl.glVertex2f(1, 0.6f);
 
         gl.glTexCoord2f(0, 1);
-        gl.glVertex2f(-0.25f, 0.4f);
+        gl.glVertex2f(-0.25f, 0.6f);
 
 
         gl.glEnd();

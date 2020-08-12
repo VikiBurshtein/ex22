@@ -11,7 +11,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class FourthRoom extends BaseRoom {
     private Texture tableTexture, gobletTexture, spikesTexture, coinTexture;
@@ -23,11 +22,13 @@ public class FourthRoom extends BaseRoom {
 
     private ObjectsForCollision goblets = new ObjectsForCollision();
     private ObjectsForCollision tables = new ObjectsForCollision();
-    private ObjectsForCollision spikes = new ObjectsForCollision();
+    private ObjectsForCollision spikesForDrawing = new ObjectsForCollision();
+    private ObjectsForCollision spikesForCollision = new ObjectsForCollision();
     private ObjectsForCollision coins = new ObjectsForCollision();
 
     FourthRoom() {
         roomName = "fourthRoom";
+        roomNameToShow = "Fourth Room";
         roomWidth = 200.0f;
         roomHeight = 100.0f;
         roomDepth = 400.0f;
@@ -69,8 +70,8 @@ public class FourthRoom extends BaseRoom {
     }
 
     public void drawSpikes(GL2 gl) {
-        for (int i = 0; i < spikes.getSize(); i++) {
-            drawOneSpike(gl, spikes.getObject(i));
+        for (int i = 0; i < spikesForDrawing.getSize(); i++) {
+            drawOneSpike(gl, spikesForDrawing.getObject(i));
         }
     }
 
@@ -137,6 +138,21 @@ public class FourthRoom extends BaseRoom {
         setRoomTextures(gl);
     }
 
+    public void initializeWallsCoordinates() {
+        leftWall = new ObjectsForCollision();
+        rightWall = new ObjectsForCollision();
+        ceiling = new ObjectsForCollision();
+        floor = new ObjectsForCollision();
+        frontWall = new ObjectsForCollision();
+        backWall = new ObjectsForCollision();
+        leftWall.addObject(new float[]{-200, 0, 0});
+        rightWall.addObject(new float[]{200, 0, 0});
+        ceiling.addObject(new float[]{100, 0, 0});
+        floor.addObject(new float[]{-100, 0, 0});
+        frontWall.addObject(new float[]{-400, 0, 0});
+        backWall.addObject(new float[]{400, 0, 0});
+    }
+
     public void initializeGobletsCoordinates() {
         goblets.addObject(new float[]{0, -70, -200.0f});
     }
@@ -146,19 +162,34 @@ public class FourthRoom extends BaseRoom {
     }
 
     public void initializeSpikesCoordinates(){
-        spikes.addObject(new float[]{-100, -100, 350});
-        spikes.addObject(new float[]{100, -100, 350});
-        spikes.addObject(new float[]{-50, -100, 250});
-        spikes.addObject(new float[]{50, -100, 250});
-        spikes.addObject(new float[]{0, -100, 150});
-        spikes.addObject(new float[]{50, -100, 50});
-        spikes.addObject(new float[]{-50, -100, 50});
-        spikes.addObject(new float[]{150, -100, 50});
-        spikes.addObject(new float[]{-150, -100, 50});
-        spikes.addObject(new float[]{100, -100, -50});
-        spikes.addObject(new float[]{-100, -100, -50});
-        spikes.addObject(new float[]{50, -100, -150});
-        spikes.addObject(new float[]{-50, -100, -150});
+        float spikesHeightToDraw = -100;
+        spikesForDrawing.addObject(new float[]{-100, spikesHeightToDraw, 350});
+        spikesForDrawing.addObject(new float[]{100, spikesHeightToDraw, 350});
+        spikesForDrawing.addObject(new float[]{-50, spikesHeightToDraw, 250});
+        spikesForDrawing.addObject(new float[]{50, spikesHeightToDraw, 250});
+        spikesForDrawing.addObject(new float[]{0, spikesHeightToDraw, 150});
+        spikesForDrawing.addObject(new float[]{50, spikesHeightToDraw, 50});
+        spikesForDrawing.addObject(new float[]{-50, spikesHeightToDraw, 50});
+        spikesForDrawing.addObject(new float[]{150, spikesHeightToDraw, 50});
+        spikesForDrawing.addObject(new float[]{-150, spikesHeightToDraw, 50});
+        spikesForDrawing.addObject(new float[]{100, spikesHeightToDraw, -50});
+        spikesForDrawing.addObject(new float[]{-100, spikesHeightToDraw, -50});
+        spikesForDrawing.addObject(new float[]{50, spikesHeightToDraw, -150});
+        spikesForDrawing.addObject(new float[]{-50, spikesHeightToDraw, -150});
+
+        spikesForCollision.addObject(new float[]{-100, -100, 350});
+        spikesForCollision.addObject(new float[]{100, -100, 350});
+        spikesForCollision.addObject(new float[]{-50, -100, 250});
+        spikesForCollision.addObject(new float[]{50, -100, 250});
+        spikesForCollision.addObject(new float[]{0, -100, 150});
+        spikesForCollision.addObject(new float[]{50, -100, 50});
+        spikesForCollision.addObject(new float[]{-50, -100, 50});
+        spikesForCollision.addObject(new float[]{150, -100, 50});
+        spikesForCollision.addObject(new float[]{-150, -100, 50});
+        spikesForCollision.addObject(new float[]{100, -100, -50});
+        spikesForCollision.addObject(new float[]{-100, -100, -50});
+        spikesForCollision.addObject(new float[]{50, -100, -150});
+        spikesForCollision.addObject(new float[]{-50, -100, -150});
 
     }
 
@@ -172,18 +203,23 @@ public class FourthRoom extends BaseRoom {
         initializeTablesCoordinates();
         initializeSpikesCoordinates();
         initializeCoinsCoordinates();
+        initializeWallsCoordinates();
+    }
+
+    public void setPlayer(){
+        player = new PlayerLogic(stepQuanity, camAngle, 1, 1, -1, 0,0,399);
     }
 
     public void initializeCoinsCoordinates() {
-        coins.addObject(new float[]{-90, -90, -200});
-        coins.addObject(new float[]{90, -90, -200});
-        coins.addObject(new float[]{-45, -90, -100});
-        coins.addObject(new float[]{45, -90, -100});
-        coins.addObject(new float[]{0, -90, 0});
-        coins.addObject(new float[]{-45, -90, 100});
-        coins.addObject(new float[]{45, -90, 100});
-        coins.addObject(new float[]{-90, -90, 200});
-        coins.addObject(new float[]{90, -90, 200});
+        coins.addObject(new float[]{-90, -95, -200});
+        coins.addObject(new float[]{90, -95, -200});
+        coins.addObject(new float[]{-45, -95, -100});
+        coins.addObject(new float[]{45, -95, -100});
+        coins.addObject(new float[]{0, -95, 0});
+        coins.addObject(new float[]{-45, -95, 100});
+        coins.addObject(new float[]{45, -95, 100});
+        coins.addObject(new float[]{-90, -95, 200});
+        coins.addObject(new float[]{90, -95, 200});
     }
 
     @Override
@@ -191,15 +227,14 @@ public class FourthRoom extends BaseRoom {
         //<Coins><Square of the spikes><The Table of the goblet><Left wall><Right wall><ceiling><floor><Back wall><Front Wall>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
-            add(new ObjectsForCollision());
+            add(spikesForCollision.getObjectsList());
             add(tables.getObjectsList());
-            add(goblets.getObjectsList());
-            add(spikes.getObjectsList());
-            add(new ObjectsForCollision());
+            add(leftWall);
+            add(rightWall);
+            add(ceiling);
+            add(floor);
+            add(backWall);
+            add(frontWall);
         }};
     }
 }

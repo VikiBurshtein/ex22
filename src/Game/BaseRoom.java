@@ -5,6 +5,7 @@ import com.jogamp.newt.event.KeyAdapter;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.awt.AWTKeyAdapter;
 import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
@@ -27,8 +28,12 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public float camAngle = 2;
     public HealthBar healthBar;
     public F1Screen f1Screen;
+    public Win winScreen;
+    public RoomNameAndCoins roomNameAndCoins;
+    public Panel panel;
     public boolean showF1 = false;
 
+    public List<String> instructions = new ArrayList<>();
     public Texture leftWallTexture, rightWallTexture, frontWallTexture,
             backWallTexture, ceilingTexture, floorTexture;
     public float roomWidth, roomHeight, roomDepth;
@@ -38,12 +43,16 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     public static GLCanvas canvas;
     public static Animator animator;
-    //<coins><monkeys><arrows><sharks><horizontalLasers><verticalLasers><table><goblet><spikes><path>
     public static List<List<float[]>> objects;
     public static GLU glu;
     public static Frame frame;
 
+    public ObjectsForCollision leftWall, rightWall,ceiling,floor,frontWall,backWall;
+
     public String roomName;
+    public String roomNameToShow;
+
+    TextRenderer renderer;
 
     /**
      *
@@ -52,10 +61,12 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
-        player = new PlayerLogic(stepQuanity, camAngle);
         final GL2 gl = glAutoDrawable.getGL().getGL2();
         healthBar = new HealthBar();
         f1Screen = new F1Screen(roomName);
+        winScreen = new Win();
+        roomNameAndCoins = new RoomNameAndCoins();
+        panel = new Panel();
         gl.glShadeModel(GL2.GL_SMOOTH);              // Enable Smooth Shading
         gl.glClearColor(0.0f, 0.0f, 2.0f, 0.0f);    // Background
         gl.glClearDepth(1.0f);                      // Depth Buffer Setup
@@ -64,10 +75,13 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-
+        setPlayer();
         setTextures(gl);
         loadObjects();
 
+        renderer = new TextRenderer(new Font("SansSerif", Font.BOLD, 36));
+
+        setInstructions();
         if (glAutoDrawable instanceof com.jogamp.newt.Window) {
             com.jogamp.newt.Window window = (Window) glAutoDrawable;
             window.addKeyListener(this);
@@ -100,6 +114,18 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 //        UIsPressed = false;
     }
 
+    public void setInstructions(){
+        instructions = new ArrayList() {{
+            add("hello");
+            add("hi");
+            add("hi hi hi");
+            add("1234");
+            add("hello");
+            add("bye");
+            add("!");
+        }};
+    }
+
     public void setRoomTextures(GL2 gl) {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
@@ -125,6 +151,8 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     abstract public void loadObjects();
 
+    abstract public void setPlayer();
+
     @Override
     public void dispose(GLAutoDrawable glAutoDrawable) {
     }
@@ -140,10 +168,25 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 player.yAxis[0], player.yAxis[1], player.yAxis[2]); //Specifies the direction of the up vector.
         drawRoom(gl);
         if(!showF1) {
-            drawObjects(gl);
             updateObjectsList();
+            drawPanel(gl);
+            drawObjects(gl);
+            drawRoomNameAndCoins(gl);
+            renderer.beginRendering(3000, 2000);
+            //renderer.setColor(0.4f, 0.4f, 0.4f, 1f);
+            renderer.draw(roomNameToShow, 2700, 1950);
+            renderer.endRendering();
+            gl.glPopAttrib();
         }else{
             drawF1(gl);
+            renderer.beginRendering(3000, 2000);
+            //renderer.setColor(0.4f, 0.4f, 0.4f, 1f);
+            int enter = 40;
+            for(int i=0; i<instructions.size(); i++){
+                renderer.draw(instructions.get(i), 300, 1700 - (enter * i));
+            }
+            renderer.endRendering();
+            gl.glPopAttrib();
         }
     }
 
@@ -183,7 +226,45 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glPopMatrix();
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         gl.glPopMatrix();
+
     }
+
+    public void drawRoomNameAndCoins(GL2 gl) {
+        //set to ortho matrix to draw in 2d
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        gl.glOrtho(-0.5f, 10f, -10f, 0.5f, -1f, 1f);
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        roomNameAndCoins.drawRoomNameAndCoins(gl);
+        //return the PROJECTION matrix and then to vm
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPopMatrix();
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPopMatrix();
+
+    }
+
+    public void drawPanel(GL2 gl) {
+        //set to ortho matrix to draw in 2d
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        gl.glOrtho(-0.5f, 10f, -10f, 0.5f, -1f, 1f);
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        panel.drawRoomNameAndCoins(gl);
+        //return the PROJECTION matrix and then to vm
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPopMatrix();
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPopMatrix();
+
+    }
+
 
     public void drawRoom(GL2 gl) {
         gl.glPushMatrix();
