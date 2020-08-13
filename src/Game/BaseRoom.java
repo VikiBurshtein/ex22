@@ -32,7 +32,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public RoomNameAndCoins roomNameAndCoins;
     public Panel panel;
     public boolean showF1 = false;
-
     public List<String> instructions = new ArrayList<>();
     public Texture leftWallTexture, rightWallTexture, frontWallTexture,
             backWallTexture, ceilingTexture, floorTexture;
@@ -46,6 +45,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public static List<List<float[]>> objects;
     public static GLU glu;
     public static Frame frame;
+    protected boolean immune = false;
 
     public ObjectsForCollision leftWall, rightWall,ceiling,floor,frontWall,backWall;
 
@@ -375,6 +375,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     public void keyPressed(KeyEvent e) {
+        boolean hit = false;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
                 exit(true);
@@ -442,6 +443,25 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 break;
             default:
                 break;
+        }
+        if(hit && !immune){
+            immune = true;
+            if(changeBar("damage")){
+                Loader.runNewRoom("firstRoom");
+                return;
+            }
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(7000);
+                        immune = false;
+                    } catch (InterruptedException interruptedException) {
+                        interruptedException.printStackTrace();
+                    }
+                }
+            });
+            thread.run();
         }
     }
 
@@ -513,14 +533,35 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 Loader.runNewRoom("firstRoom");
                 break;
             case KeyEvent.VK_F4:
-                Coin.useCoin();
+                changeBar("addLife");
                 break;
             default:
                 break;
         }
     }
 
-    public static void exit(boolean system) {
+    public void updateScoreAndBarView(){
+        int currLife = GameScore.life;//2 = 100%, 1 = 50%, 0 = 0%
+        int currCoins = GameScore.coins;
+        .//viki update them in VIEW
+    }
+
+    public void changeScore(String command){
+        GameScore.changeScore(command);
+        int currCoins = GameScore.coins;
+        updateScoreAndBarView();
+    }
+
+    /*returns true iff we need to restart */
+    public boolean changeBar(String command){
+        boolean endGame = GameScore.changeBar(command);
+        if(!endGame){
+            updateScoreAndBarView();
+        }
+        return endGame;
+    }
+    public void exit(boolean system) {
+        GameScore.reset();
         animator.stop();
         frame.remove(canvas);
         frame.dispose();
