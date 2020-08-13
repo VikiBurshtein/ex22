@@ -447,6 +447,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         if(hit && !immune){
             immune = true;
             if(changeBar("damage")){
+                GameScore.reset();
                 Loader.runNewRoom("firstRoom");
                 return;
             }
@@ -521,15 +522,10 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 showF1 = false;
                 break;
             case KeyEvent.VK_F2:
-                if (roomName.equals("firstRoom")) {
-                    Loader.runNewRoom("secondRoom");
-                } else if (roomName.equals("secondRoom")) {
-                    Loader.runNewRoom("thirdRoom");
-                } else if (roomName.equals("thirdRoom")) {
-                    Loader.runNewRoom("fourthRoom");
-                }
+                advance();
                 break;
             case KeyEvent.VK_F3:
+                GameScore.reset();
                 Loader.runNewRoom("firstRoom");
                 break;
             case KeyEvent.VK_F4:
@@ -561,7 +557,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         return endGame;
     }
     public void exit(boolean system) {
-        GameScore.reset();
         animator.stop();
         frame.remove(canvas);
         frame.dispose();
@@ -579,7 +574,15 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         objects = null;
     }
 
-
+    public void advance(){
+        if (roomName.equals("firstRoom")) {
+            Loader.runNewRoom("secondRoom");
+        } else if (roomName.equals("secondRoom")) {
+            Loader.runNewRoom("thirdRoom");
+        } else if (roomName.equals("thirdRoom")) {
+            Loader.runNewRoom("fourthRoom");
+        }
+    }
     public void start() {
         canvas.addGLEventListener(this);
         frame.add(canvas);
