@@ -8,6 +8,7 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GL2GL3;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /** represent as object on center of the screen with visuality of Matrix "Green Rain"
  * will be not be considered room, but an object so it will be able to visualize on a running room.
@@ -17,7 +18,7 @@ public class F1Screen {
 
     private Texture f1Texture;
     private float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
-    private static String instructions = "";
+    public static List<String> instructions;
 
     public F1Screen(String roomName){
         setF1Screen();

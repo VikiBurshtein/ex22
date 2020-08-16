@@ -32,7 +32,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public RoomNameAndCoins roomNameAndCoins;
     public Panel panel;
     public boolean showF1 = false;
-    public List<String> instructions = new ArrayList<>();
     public Texture leftWallTexture, rightWallTexture, frontWallTexture,
             backWallTexture, ceilingTexture, floorTexture;
     public float roomWidth, roomHeight, roomDepth;
@@ -115,14 +114,30 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     public void setInstructions(){
-        instructions = new ArrayList() {{
-            add("hello");
-            add("hi");
-            add("hi hi hi");
-            add("1234");
-            add("hello");
-            add("bye");
-            add("!");
+        F1Screen.instructions = new ArrayList() {{
+            add("Welcome to our Computational Graphics Escape room!");
+            add("");
+            add("Objective: You need to get to the goblet!");
+            add("");
+            add("Your HP bar is on the left, you have 3 lives - for each hit you will be immune for 7 seconds.");
+            add("");
+            add("Your score is on the right, for each coin you get 1 score; 3 scores trades for one life :) collect the coins!");
+            add("");
+            add("");
+            add("Rooms guide:");
+            add("First room: The starting room. avoid the arrows and get to the door!");
+            add("Second room: You must move onto the bridge straight to the door and avoid the water at all cost.");
+            add("Third room: Becareful of the Lasers! they can harm you. go fast to the door!");
+            add("Fourth room: OHH hey, the floor may be spikey... it will surprise you :( dont waste time, go to the Goblet!");
+            add("");
+            add("");
+            add("Special buttons:");
+            add("F2: Pass the current room and move straight to the next one.");
+            add("F3: Restart the game. everything will reset.");
+            add("F4: Restore life. costs 3 scores.");
+            add("");
+            add("");
+            add("Goodluck explorer!");
         }};
     }
 
@@ -182,8 +197,8 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             renderer.beginRendering(3000, 2000);
             //renderer.setColor(0.4f, 0.4f, 0.4f, 1f);
             int enter = 40;
-            for(int i=0; i<instructions.size(); i++){
-                renderer.draw(instructions.get(i), 300, 1700 - (enter * i));
+            for(int i=0; i<F1Screen.instructions.size(); i++){
+                renderer.draw(F1Screen.instructions.get(i), 300, 1700 - (enter * i));
             }
             renderer.endRendering();
             gl.glPopAttrib();
