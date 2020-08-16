@@ -51,6 +51,9 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public String roomName;
     public String roomNameToShow;
 
+    public int currentLife = 2;
+    public String currentScore = "0";
+
     TextRenderer renderer;
 
     /**
@@ -182,24 +185,27 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 player.look[0], player.look[1], player.look[2], //Specifies the position of the reference point.
                 player.yAxis[0], player.yAxis[1], player.yAxis[2]); //Specifies the direction of the up vector.
         drawRoom(gl);
-        if(!showF1) {
-            updateObjectsList();
-            drawPanel(gl);
-            drawObjects(gl);
-            drawRoomNameAndCoins(gl);
-            renderer.beginRendering(3000, 2000);
-            //renderer.setColor(0.4f, 0.4f, 0.4f, 1f);
-            renderer.draw(roomNameToShow, 2700, 1950);
-            renderer.endRendering();
-            gl.glPopAttrib();
-        }else{
+        if(showF1) {
             drawF1(gl);
             renderer.beginRendering(3000, 2000);
-            //renderer.setColor(0.4f, 0.4f, 0.4f, 1f);
             int enter = 40;
             for(int i=0; i<F1Screen.instructions.size(); i++){
                 renderer.draw(F1Screen.instructions.get(i), 300, 1700 - (enter * i));
             }
+            renderer.endRendering();
+            gl.glPopAttrib();
+        }else{
+            updateObjectsList();
+            drawPanel(gl);
+            drawObjects(gl);
+            drawHealtbBar(gl);
+            renderer.beginRendering(3000, 2000);
+            renderer.draw(currentScore, 2800, 1900);
+            renderer.endRendering();
+            gl.glPopAttrib();
+            drawRoomNameAndCoins(gl);
+            renderer.beginRendering(3000, 2000);
+            renderer.draw(roomNameToShow, 2700, 1950);
             renderer.endRendering();
             gl.glPopAttrib();
         }
@@ -218,13 +224,15 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         gl.glPushMatrix();
         gl.glLoadIdentity();
-        healthBar.drawHealthBar(gl);
+        healthBar.drawHealthBar(gl, currentLife);
         //return the PROJECTION matrix and then to vm
         gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
         gl.glPopMatrix();
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         gl.glPopMatrix();
     }
+
+
 
     public void drawF1(GL2 gl) {
         //set to ortho matrix to draw in 2d
@@ -241,7 +249,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glPopMatrix();
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         gl.glPopMatrix();
-
     }
 
     public void drawRoomNameAndCoins(GL2 gl) {
@@ -277,7 +284,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glPopMatrix();
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         gl.glPopMatrix();
-
     }
 
 
@@ -552,9 +558,8 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     public void updateScoreAndBarView(){
-        int currLife = GameScore.life;//2 = 100%, 1 = 50%, 0 = 0%
-        int currCoins = GameScore.coins;
-        .//viki update them in VIEW
+        currentLife = GameScore.life;//2 = 100%, 1 = 50%, 0 = 0%
+        currentScore = String.valueOf(GameScore.coins);
     }
 
     public void changeScore(String command){
@@ -563,7 +568,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         updateScoreAndBarView();
     }
 
-    /*returns true iff we need to restart */
+    /*returns true if we need to restart */
     public boolean changeBar(String command){
         boolean endGame = GameScore.changeBar(command);
         if(!endGame){

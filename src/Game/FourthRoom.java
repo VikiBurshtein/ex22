@@ -1,16 +1,23 @@
 package Game;//names ids
 
+import com.jogamp.newt.Window;
+import com.jogamp.newt.event.awt.AWTKeyAdapter;
 import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 import javax.media.opengl.GL2;
+import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
+import javax.media.opengl.fixedfunc.GLMatrixFunc;
 import javax.media.opengl.glu.GLU;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class FourthRoom extends BaseRoom {
     private Texture tableTexture, gobletTexture, spikesTexture, coinTexture;
@@ -18,7 +25,9 @@ public class FourthRoom extends BaseRoom {
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
     private float gobletRotation = 0.0f;
     private float gobletElevation = -70.0f;
-    private boolean gobletIsUP = true;
+    private boolean gobletRises = false;
+    private boolean showWin = false;
+    private Win winningScreen;
 
     private ObjectsForCollision goblets = new ObjectsForCollision();
     private ObjectsForCollision tables = new ObjectsForCollision();
@@ -39,14 +48,129 @@ public class FourthRoom extends BaseRoom {
         frame = new Frame("");
     }
 
+    @Override
+    public void init(GLAutoDrawable glAutoDrawable) {
+        final GL2 gl = glAutoDrawable.getGL().getGL2();
+        healthBar = new HealthBar();
+        f1Screen = new F1Screen(roomName);
+        winScreen = new Win();
+        roomNameAndCoins = new RoomNameAndCoins();
+        panel = new Panel();
+        winningScreen = new Win();
+        gl.glShadeModel(GL2.GL_SMOOTH);              // Enable Smooth Shading
+        gl.glClearColor(0.0f, 0.0f, 2.0f, 0.0f);    // Background
+        gl.glClearDepth(1.0f);                      // Depth Buffer Setup
+        gl.glEnable(GL2.GL_DEPTH_TEST);              // Enables Depth Testing
+        gl.glDepthFunc(GL2.GL_LEQUAL);               // The Type Of Depth Testing To Do
+        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+        setPlayer();
+        setTextures(gl);
+        loadObjects();
+
+        renderer = new TextRenderer(new Font("SansSerif", Font.BOLD, 36));
+
+        setInstructions();
+        if (glAutoDrawable instanceof com.jogamp.newt.Window) {
+            com.jogamp.newt.Window window = (Window) glAutoDrawable;
+            window.addKeyListener(this);
+        } else if (GLProfile.isAWTAvailable() && glAutoDrawable instanceof java.awt.Component) {
+            java.awt.Component comp = (java.awt.Component) glAutoDrawable;
+            new AWTKeyAdapter(this, glAutoDrawable).addTo(comp);
+        }
+
+        // Light
+//        float	ambient[] = {0.1f,0.1f,0.1f,1.0f};
+//        float	diffuse0[] = {1f,0f,0f,1.0f};
+//
+//        gl.glShadeModel(GL2.GL_SMOOTH);
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
+//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse0, 0);
+//        gl.glEnable(GL2.GL_LIGHT0);
+//
+//        gl.glEnable(GL2.GL_LIGHTING);
+//        WIsPressed = false;
+//        SIsPressed = false;
+//        AIsPressed = false;
+//        DIsPressed = false;
+//        EIsPressed = false;
+//        QIsPressed = false;
+//        IIsPressed = false;
+//        KIsPressed = false;
+//        LIsPressed = false;
+//        JIsPressed = false;
+//        OIsPressed = false;
+//        UIsPressed = false;
+    }
+
+    @Override
+    public void display(GLAutoDrawable glAutoDrawable) {
+        final GL2 gl = glAutoDrawable.getGL().getGL2();
+        gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+        player.setLookAtPoint();
+        gl.glLoadIdentity();  // Reset The View
+        glu.gluLookAt(player.pos[0], player.pos[1], player.pos[2],//Specifies the position of the eye point.
+                player.look[0], player.look[1], player.look[2], //Specifies the position of the reference point.
+                player.yAxis[0], player.yAxis[1], player.yAxis[2]); //Specifies the direction of the up vector.
+        drawRoom(gl);
+        //if player won
+        if(showWin){
+            drawWinningScreen(gl);
+        }else {
+            if(showF1) {
+                drawF1(gl);
+                renderer.beginRendering(3000, 2000);
+                int enter = 40;
+                for(int i=0; i<F1Screen.instructions.size(); i++){
+                    renderer.draw(F1Screen.instructions.get(i), 300, 1700 - (enter * i));
+                }
+                renderer.endRendering();
+                gl.glPopAttrib();
+            }else{
+                updateObjectsList();
+                drawPanel(gl);
+                drawObjects(gl);
+                drawHealtbBar(gl);
+                renderer.beginRendering(3000, 2000);
+                renderer.draw(currentScore, 2800, 1900);
+                renderer.endRendering();
+                gl.glPopAttrib();
+                drawRoomNameAndCoins(gl);
+                renderer.beginRendering(3000, 2000);
+                renderer.draw(roomNameToShow, 2700, 1950);
+                renderer.endRendering();
+                gl.glPopAttrib();
+            }
+        }
+    }
+
+    public void drawWinningScreen(GL2 gl) {
+        //set to ortho matrix to draw in 2d
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        gl.glOrtho(-0.5f, 10f, -10f, 0.5f, -1f, 1f);
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        winScreen.drawWin(gl);
+        //return the PROJECTION matrix and then to vm
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPopMatrix();
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPopMatrix();
+    }
+
+    public void rise(){
+        gobletRises = true;
+    }
+
     public void drawObjects(GL2 gl) {
         drawTable(gl);
         drawGoblet(gl);
         drawSpikes(gl);
         drawCoins(gl);
-
-        //draw health bar
-        drawHealtbBar(gl);
     }
 
     public void drawCoins(GL2 gl) {
@@ -95,15 +219,18 @@ public class FourthRoom extends BaseRoom {
 
     public void drawOneGoblet(GL2 gl, float[] coordinates) {
         gl.glPushMatrix();
-        if (gobletIsUP) {
-            coordinates = goblets.moveObject(coordinates, 0, 0.1f, 0);
+        if (gobletRises) {
+            coordinates = goblets.moveObject(coordinates, 0, 0.2f, 0);
             if(coordinates[1] > -20){
-                gobletIsUP = false;
+                gobletRises = false;
+                showWin = true;
             }
         }
         gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
         gl.glScalef(5, 5, 5);
-        gl.glRotatef(goblets.getRotation(), 0, goblets.getRotation(), 0);
+        if (gobletRises) {
+            gl.glRotatef(goblets.getRotation(), 0, goblets.getRotation(), 0);
+        }
         gobletTexture.bind(gl);
         gobletModel.drawModel(gl);
         gl.glPopMatrix();

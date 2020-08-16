@@ -5,7 +5,7 @@ public class GameScore {
     public static int coins = 0;
     public static int life = 2;
 
-    /* returns true iff spended 3 coins */
+    /* returns true if spent 3 coins */
     public static boolean changeScore(String command){
         if(command.equals("addCoin")){
             coins ++;

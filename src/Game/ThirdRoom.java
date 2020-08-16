@@ -41,7 +41,6 @@ public class ThirdRoom extends BaseRoom {
     public void drawObjects(GL2 gl) {
         drawCoins(gl);
         drawLasers(gl);
-        drawHealtbBar(gl);
     }
 
     public void drawOneCoin(GL2 gl, float[] coordinates) {

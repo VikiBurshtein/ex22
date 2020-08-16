@@ -44,7 +44,6 @@ public class SecondRoom extends BaseRoom {
         drawPath(gl);
         drawSharks(gl);
         drawCoins(gl);
-        drawHealtbBar(gl);
     }
 
     public void drawPath(GL2 gl) {

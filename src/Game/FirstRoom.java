@@ -59,13 +59,13 @@ public class FirstRoom extends BaseRoom {
         drawCoins(gl);
         drawMonkeys(gl);
         drawArrows(gl);
-        drawHealtbBar(gl);
     }
 
     public void drawArrows(GL2 gl) {
         float[] coordinates;
         for (int i = 0; i < arrows.getSize(); i++) {
             coordinates = arrows.getObject(i);
+            //System.out.println(arrows.getRotation());
             if (monkeyUp) {
                 coordinates = arrows.moveObject(coordinates, 0, 0.1f, -0.1f);
             } else {

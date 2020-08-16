@@ -11,42 +11,18 @@ import java.io.File;
 import java.io.IOException;
 
 public class HealthBar {
-    private Texture healthBarTexture;
+    private Texture texture100, texture50, texture0, healthBarTexture;
     private float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
-    private int healthScore = 100;
 
     public HealthBar() {
         setHealthBar();
     }
 
-    public int getHealthScore(){
-        return healthScore;
-    }
-
-    public void decreaseHealth(){
-        healthScore = healthScore - 50;
-        if(healthScore < 0){
-            healthScore = 0;
-        }
-        setHealthBar();
-    }
-
-    public void restoreHealth(){
-        healthScore = 100;
-        setHealthBar();
-    }
-
     public void setHealthBar(){
-        String texture;
-        if(healthScore == 100){
-            texture = "resources/screenTextures/health100.png";
-        } else if(healthScore == 50){
-            texture = "resources/screenTextures/health50.png";
-        } else {
-            texture = "resources/screenTextures/health0.png";
-        }
         try{
-            healthBarTexture = TextureIO.newTexture(new File(texture), true);
+            texture100 = TextureIO.newTexture(new File("resources/screenTextures/health100.png"), true);
+            texture50 = TextureIO.newTexture(new File("resources/screenTextures/health50.png"), true);
+            texture0 = TextureIO.newTexture(new File("resources/screenTextures/health0.png"), true);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -54,8 +30,14 @@ public class HealthBar {
         }
     }
 
-
-    public void drawHealthBar(GL2 gl) {
+    public void drawHealthBar(GL2 gl, int life) {
+        if(life == 2){
+            healthBarTexture = texture100;
+        } else if(life == 1){
+            healthBarTexture = texture50;
+        } else {
+            healthBarTexture = texture0;
+        }
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
 

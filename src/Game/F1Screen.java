@@ -56,7 +56,6 @@ public class F1Screen {
         gl.glTexCoord2f(0, 1);
         gl.glVertex2f(-0.25f, 0f);
 
-
         gl.glEnd();
 
     }
