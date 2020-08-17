@@ -1,5 +1,6 @@
 package Game;
 
+import Collide.CollisionCheck;
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.KeyAdapter;
 import com.jogamp.newt.event.KeyEvent;
@@ -51,9 +52,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public String roomName;
     public String roomNameToShow;
 
-    public int currentLife = 2;
-    public String currentScore = "0";
-
     TextRenderer renderer;
 
     /**
@@ -102,18 +100,18 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 //        gl.glEnable(GL2.GL_LIGHT0);
 //
 //        gl.glEnable(GL2.GL_LIGHTING);
-//        WIsPressed = false;
-//        SIsPressed = false;
-//        AIsPressed = false;
-//        DIsPressed = false;
-//        EIsPressed = false;
-//        QIsPressed = false;
-//        IIsPressed = false;
-//        KIsPressed = false;
-//        LIsPressed = false;
-//        JIsPressed = false;
-//        OIsPressed = false;
-//        UIsPressed = false;
+        WIsPressed = false;
+        SIsPressed = false;
+        AIsPressed = false;
+        DIsPressed = false;
+        EIsPressed = false;
+        QIsPressed = false;
+        IIsPressed = false;
+        KIsPressed = false;
+        LIsPressed = false;
+        JIsPressed = false;
+        OIsPressed = false;
+        UIsPressed = false;
     }
 
     public void setInstructions(){
@@ -200,7 +198,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             drawObjects(gl);
             drawHealtbBar(gl);
             renderer.beginRendering(3000, 2000);
-            renderer.draw(currentScore, 2800, 1900);
+            renderer.draw(new Integer(GameScore.coins).toString(), 2800, 1900);
             renderer.endRendering();
             gl.glPopAttrib();
             drawRoomNameAndCoins(gl);
@@ -224,15 +222,13 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         gl.glPushMatrix();
         gl.glLoadIdentity();
-        healthBar.drawHealthBar(gl, currentLife);
+        healthBar.drawHealthBar(gl, new Integer(GameScore.life));
         //return the PROJECTION matrix and then to vm
         gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
         gl.glPopMatrix();
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         gl.glPopMatrix();
     }
-
-
 
     public void drawF1(GL2 gl) {
         //set to ortho matrix to draw in 2d
@@ -397,42 +393,55 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     public void keyPressed(KeyEvent e) {
         boolean hit = false;
+        float[] future;
+        boolean moved = false;
+        int instruction = 0;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
                 exit(true);
                 break;
             //player movement:
             case KeyEvent.VK_W:
+                moved = true;
                 WIsPressed = true;
-//                if(!CollisionCheck.isHit())/**
-//                 here i need the corrdinates of all
-//                 the boxes and skys
-//                 and moving objects(in the moment) of
-//                 this level in static local(in the class)
-//                 - for doors arrows ,trophie, and lasers its diffeneret(not just blocking
-//                 but changing the gameplay) , btw after the throphie goes up and there's fireworks for 10 seconds the system exits with good bye :)*/
-                player.move(0, 0, 11);
+                future = player.getFuturePlaceOfMove(0,0,11);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_S:
+                moved = true;
                 SIsPressed = true;
-//                if(!CollisionCheck.isHit())
-                player.move(0, 0, -11);
+                future = player.getFuturePlaceOfMove(0,0,-11);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_D:
+                moved = true;
                 DIsPressed = true;
-                player.move(11, 0, 0);
+                future = player.getFuturePlaceOfMove(11,0,0);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_A:
+                moved = true;
                 AIsPressed = true;
-                player.move(-11, 0, 0);
+                future = player.getFuturePlaceOfMove(-11,0,0);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_E:
+                moved = true;
                 EIsPressed = true;
-                player.move(0, 11, 0);
+                if(roomName.equals("secondRoom")){
+                    break;
+                }
+                future = player.getFuturePlaceOfMove(0,11,0);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_Q:
+                moved = true;
                 QIsPressed = true;
-                player.move(0, -11, 0);
+                if(roomName.equals("secondRoom")){
+                    break;
+                }
+                future = player.getFuturePlaceOfMove(0,-11,0);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             //camera movement:
             case KeyEvent.VK_I:
@@ -464,6 +473,69 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 break;
             default:
                 break;
+        }
+        if(moved){
+            float[] move = new float[3];
+            if(WIsPressed){
+                move[0] = 0;
+                move[1] = 0;
+                move[2] = 11;
+            }
+            else if(SIsPressed){
+                move[0] = 0;
+                move[1] = 0;
+                move[2] = -11;
+            }
+            else if(DIsPressed){
+                move[0] = 11;
+                move[1] = 0;
+                move[2] = 0;
+            }
+            else if(AIsPressed){
+                move[0] = -11;
+                move[1] = 0;
+                move[2] = 0;
+            }
+            else if(EIsPressed){
+                move[0] = 0;
+                move[1] = 11;
+                move[2] = 0;
+            }
+            else if(QIsPressed){
+                move[0] = 0;
+                move[1] = -11;
+                move[2] = 0;
+            }
+            if(instruction == 0){
+                player.move(move[0],move[1],move[2]);
+            }
+            else if(instruction == 1){
+
+            }
+            else if(instruction == 2){
+
+            }
+            else if(instruction == 3){
+
+            }
+            else if(instruction == 4){
+
+            }
+            else if(instruction == 5){
+
+            }
+            else if(instruction == 6){
+
+            }
+            else if(instruction == 7){
+
+            }
+            else if(instruction == 8){
+
+            }
+            else if(instruction == 9){
+
+            }
         }
         if(hit && !immune){
             immune = true;
@@ -558,8 +630,9 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     public void updateScoreAndBarView(){
-        currentLife = GameScore.life;//2 = 100%, 1 = 50%, 0 = 0%
-        currentScore = String.valueOf(GameScore.coins);
+        int currLife = GameScore.life;//2 = 100%, 1 = 50%, 0 = 0%
+        int currCoins = GameScore.coins;
+        //viki update them in VIEW
     }
 
     public void changeScore(String command){
@@ -568,7 +641,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         updateScoreAndBarView();
     }
 
-    /*returns true if we need to restart */
+    /*returns true iff we need to restart */
     public boolean changeBar(String command){
         boolean endGame = GameScore.changeBar(command);
         if(!endGame){

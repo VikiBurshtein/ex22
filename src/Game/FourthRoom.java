@@ -133,7 +133,7 @@ public class FourthRoom extends BaseRoom {
                 drawObjects(gl);
                 drawHealtbBar(gl);
                 renderer.beginRendering(3000, 2000);
-                renderer.draw(currentScore, 2800, 1900);
+                renderer.draw(new Integer(GameScore.coins).toString(), 2800, 1900);
                 renderer.endRendering();
                 gl.glPopAttrib();
                 drawRoomNameAndCoins(gl);
