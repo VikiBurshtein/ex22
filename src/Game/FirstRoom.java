@@ -13,17 +13,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class FirstRoom extends BaseRoom {
-    private Texture coinTexture, monkeyTexture, arrowTexture;
-    private WavefrontObjectLoader_DisplayList coinModel, monkeyModel, arrowModel;
+    private Texture monkeyTexture, ballTexture;
+    private WavefrontObjectLoader_DisplayList monkeyModel, ballModel;
     private ObjectsForCollision monkeys = new ObjectsForCollision();
-    private ObjectsForCollision coins = new ObjectsForCollision();
-    private ObjectsForCollision arrows = new ObjectsForCollision();
+    private ObjectsForCollision balls = new ObjectsForCollision();
     private ObjectsForCollision doors = new ObjectsForCollision();
 
 
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
 
     private boolean monkeyUp = false;
+    private boolean shoot = false;
 
     FirstRoom() {
         roomName = "firstRoom";
@@ -36,46 +36,60 @@ public class FirstRoom extends BaseRoom {
         objects = new ArrayList<>();
         glu = new GLU();
         frame = new Frame("");
-
     }
 
-    public void updateObjectsList(){
-        //<Coins><Monkeys><Arrows><Door><Left wall><Right wall><ceiling><floor><Back wall><Front Wall>
+    public void updateObjectsList() {
+        //<Coins><Monkeys><Balls><Door><Left wall><Right wall><ceiling><floor><Back wall><Front Wall>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
             add(monkeys.getObjectsList());
-            add(arrows.getObjectsList());
-            add(doors);
-            add(leftWall);
-            add(rightWall);
-            add(ceiling);
-            add(floor);
-            add(backWall);
-            add(frontWall);
+            add(balls.getObjectsList());
+            add(doors.getObjectsList());
+            add(leftWall.getObjectsList());
+            add(rightWall.getObjectsList());
+            add(ceiling.getObjectsList());
+            add(floor.getObjectsList());
+            add(backWall.getObjectsList());
+            add(frontWall.getObjectsList());
         }};
     }
 
     public void drawObjects(GL2 gl) {
         drawCoins(gl);
         drawMonkeys(gl);
-        drawArrows(gl);
+        drawBalls(gl);
     }
 
-    public void drawArrows(GL2 gl) {
+    public void drawBalls(GL2 gl) {
         float[] coordinates;
-        for (int i = 0; i < arrows.getSize(); i++) {
-            coordinates = arrows.getObject(i);
-            //System.out.println(arrows.getRotation());
-            if (monkeyUp) {
-                coordinates = arrows.moveObject(coordinates, 0, 0.1f, -0.1f);
-            } else {
-                coordinates = arrows.moveObject(coordinates, 0, -0.1f, 0.1f);
+        if(shoot){
+            for (int i = 0; i < balls.getSize(); i++) {
+                coordinates = balls.getObject(i);
+                coordinates = balls.moveObject(coordinates, 3f, 0, 6f);
+                drawOneBall(gl, coordinates);
+                if (coordinates[2] > 400) {
+                    shoot = false;
+                    float[] monkey = monkeys.getObject(0);
+                    balls.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
+                }
             }
-            drawOneArrow(gl, coordinates);
+        } else {
+            for (int i = 0; i < balls.getSize(); i++) {
+                coordinates = balls.getObject(i);
+
+                if (monkeyUp) {
+                    coordinates = balls.moveObject(coordinates, 0, 0.2f, 0);
+                } else {
+                    coordinates = balls.moveObject(coordinates, 0, -0.2f, 0);
+                }
+                if ((int)coordinates[1] == -50 || (int)coordinates[1] == 30) {
+                    shoot = true;
+                }
+                drawOneBall(gl, coordinates);
+            }
         }
-        //rotate arrows
-        arrows.rotateBy(0.7f);
     }
+
 
     public void drawMonkeys(GL2 gl) {
         float[] coordinates;
@@ -91,22 +105,12 @@ public class FirstRoom extends BaseRoom {
             }
 
             if (monkeyUp) {
-                coordinates = monkeys.moveObject(coordinates, 0, 0.1f, -0.1f);
+                coordinates = monkeys.moveObject(coordinates, 0, 0.2f, 0);
             } else {
-                coordinates = monkeys.moveObject(coordinates, 0, -0.1f, 0.1f);
+                coordinates = monkeys.moveObject(coordinates, 0, -0.2f, 0);
             }
             drawOneMonkey(gl, coordinates);
         }
-
-        //rotate monkeys
-        monkeys.rotateBy(359.3f);
-    }
-
-    public void drawCoins(GL2 gl) {
-        for (int i = 0; i < coins.getSize(); i++) {
-            drawOneCoin(gl, coins.getObject(i));
-        }
-        coins.rotateBy(3);
     }
 
     public void drawOneMonkey(GL2 gl, float[] coordinates) {
@@ -119,24 +123,16 @@ public class FirstRoom extends BaseRoom {
         gl.glPopMatrix();
     }
 
-    public void drawOneCoin(GL2 gl, float[] coordinates) {
-        gl.glPushMatrix();
-        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-        gl.glScalef(5, 5, 5);
-        gl.glRotatef(coins.getRotation(), 90, 90, 90);
-        coinTexture.bind(gl);
-        coinModel.drawModel(gl);
-        gl.glPopMatrix();
-    }
 
-    public void drawOneArrow(GL2 gl, float[] coordinates) {
+
+    public void drawOneBall(GL2 gl, float[] coordinates) {
         gl.glPushMatrix();
         gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
         gl.glScalef(5, 5, 5);
-        gl.glRotatef(90,90,0,0);
-        gl.glRotatef(arrows.getRotation(),0,0,arrows.getRotation());
-        arrowTexture.bind(gl);
-        arrowModel.drawModel(gl);
+        gl.glRotatef(90, 90, 0, 0);
+        gl.glRotatef(balls.getRotation(), 0, 0, balls.getRotation());
+        ballTexture.bind(gl);
+        ballModel.drawModel(gl);
         gl.glPopMatrix();
     }
 
@@ -144,12 +140,12 @@ public class FirstRoom extends BaseRoom {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
             //objects texture
-            String coin = "resources/basicObjects/textures/coin.jpg";
-            coinTexture = TextureIO.newTexture(new File(coin), true);
+//            String coin = "resources/basicObjects/textures/coin.jpg";
+//            coinTexture = TextureIO.newTexture(new File(coin), true);
             String monkey = "resources/" + roomName + "/objectTextures/monkey.jpg";
             monkeyTexture = TextureIO.newTexture(new File(monkey), true);
-            String arrow = "resources/" + roomName + "/objectTextures/arrow.jpg";
-            arrowTexture = TextureIO.newTexture(new File(arrow), true);
+            String ball = "resources/" + roomName + "/objectTextures/ball.jpg";
+            ballTexture = TextureIO.newTexture(new File(ball), true);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -158,12 +154,11 @@ public class FirstRoom extends BaseRoom {
     }
 
     public void loadObjects() {
-        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         monkeyModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/monkey.obj");
-        arrowModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/arrow.obj");
+        ballModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/ball.obj");
         initializeCoinsCoordinates();
         initializeMonkeysCoordinates();
-        initializeArrowsCoordinates();
+        initializeBallsCoordinates();
         initializeWallsCoordinates();
         initializeDoorCoordinates();
     }
@@ -183,15 +178,17 @@ public class FirstRoom extends BaseRoom {
         backWall.addObject(new float[]{400, 0, 0});
     }
 
-    public void setPlayer(){
-        player = new PlayerLogic(stepQuanity, camAngle, 1, 1, -1, 0,0,399);
+    public void setPlayer() {
+        float xAxis[] = {1, 0, 0};
+        float yAxis[] = {0, 1, 0};
+        float zAxis[] = {0, 0, -1};
+        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0, 0, 399);
     }
 
     public void initializeMonkeysCoordinates() {
-        float[] monkey0 = {-120, -60, -10};
-        float[] monkey1 = {120, -60, -10};
-        monkeys.addObject(monkey0);
-        monkeys.addObject(monkey1);
+        float[] monkey = {-150, -80, -350};
+        monkeys.addObject(monkey);
+        monkeys.rotateBy(25);
     }
 
     public void initializeDoorCoordinates() {
@@ -208,13 +205,17 @@ public class FirstRoom extends BaseRoom {
         coins.addObject(new float[]{45, 20, 100});
         coins.addObject(new float[]{-90, -90, 200});
         coins.addObject(new float[]{90, -90, 200});
+
+        for(int i=0; i<coins.getSize(); i++){
+            coinsBoolean.add(true);
+        }
     }
 
-    public void initializeArrowsCoordinates() {
+    public void initializeBallsCoordinates() {
         float[] monkey;
-        for(int i=0; i<monkeys.getSize(); i++){
+        for (int i = 0; i < monkeys.getSize(); i++) {
             monkey = monkeys.getObject(i);
-            arrows.addObject(new float[] {monkey[0],monkey[1] - 10,monkey[2]});
+            balls.addObject(new float[]{monkey[0], monkey[1] - 10, monkey[2]});
         }
     }
 }

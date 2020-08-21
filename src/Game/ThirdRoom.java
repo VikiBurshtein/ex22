@@ -18,7 +18,6 @@ public class ThirdRoom extends BaseRoom {
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
     private ObjectsForCollision horizontalLasers = new ObjectsForCollision();
     private ObjectsForCollision verticalLasers = new ObjectsForCollision();
-    private ObjectsForCollision coins = new ObjectsForCollision();
     private ObjectsForCollision doors = new ObjectsForCollision();
 
     private boolean laserGoingDown = true;
@@ -43,22 +42,22 @@ public class ThirdRoom extends BaseRoom {
         drawLasers(gl);
     }
 
-    public void drawOneCoin(GL2 gl, float[] coordinates) {
-        gl.glPushMatrix();
-        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-        gl.glScalef(5, 5, 5);
-        gl.glRotatef(coins.getRotation(), 90, 90, 90);
-        coinTexture.bind(gl);
-        coinModel.drawModel(gl);
-        gl.glPopMatrix();
-    }
-
-    public void drawCoins(GL2 gl) {
-        for (int i = 0; i < coins.getSize(); i++) {
-            drawOneCoin(gl, coins.getObject(i));
-        }
-        coins.rotateBy(3);
-    }
+//    public void drawOneCoin(GL2 gl, float[] coordinates) {
+//        gl.glPushMatrix();
+//        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
+//        gl.glScalef(5, 5, 5);
+//        gl.glRotatef(coins.getRotation(), 90, 90, 90);
+//        coinTexture.bind(gl);
+//        coinModel.drawModel(gl);
+//        gl.glPopMatrix();
+//    }
+//
+//    public void drawCoins(GL2 gl) {
+//        for (int i = 0; i < coins.getSize(); i++) {
+//            drawOneCoin(gl, coins.getObject(i));
+//        }
+//        coins.rotateBy(3);
+//    }
 
     public void drawLasers(GL2 gl) {
         float[] coordinates;
@@ -120,8 +119,8 @@ public class ThirdRoom extends BaseRoom {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
             //objects texture
-            String coin = "resources/basicObjects/textures/coin.jpg";
-            coinTexture = TextureIO.newTexture(new File(coin), true);
+//            String coin = "resources/basicObjects/textures/coin.jpg";
+//            coinTexture = TextureIO.newTexture(new File(coin), true);
             String dynamicLasers = "resources/" + roomName + "/objectTextures/green.jpg";
             dynamicLasersTexture = TextureIO.newTexture(new File(dynamicLasers), true);
         } catch (IOException e) {
@@ -131,7 +130,7 @@ public class ThirdRoom extends BaseRoom {
         setRoomTextures(gl);
     }
     public void loadObjects() {
-        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
+//        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         verticalLaserModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/verticalLaser.obj");
         horizontalLaserModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/horizontalLaser.obj");
         initializeCoinsCoordinates();
@@ -169,6 +168,10 @@ public class ThirdRoom extends BaseRoom {
         coins.addObject(new float[]{45, 20, 100});
         coins.addObject(new float[]{-90, -90, 200});
         coins.addObject(new float[]{90, -90, 200});
+
+        for(int i=0; i<coins.getSize(); i++){
+            coinsBoolean.add(true);
+        }
     }
 
     public void initializeLasersCoordinates() {
@@ -183,7 +186,10 @@ public class ThirdRoom extends BaseRoom {
     }
 
     public void setPlayer(){
-        player = new PlayerLogic(stepQuanity, camAngle, 1, 1, -1, 0,0,399);
+        float xAxis[] = {1,0,0};
+        float yAxis[] = {0,1,0};
+        float zAxis[] = {0,0,-1};
+        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0,0,399);
     }
 
     @Override
@@ -193,13 +199,13 @@ public class ThirdRoom extends BaseRoom {
             add(coins.getObjectsList());
             add(horizontalLasers.getObjectsList());
             add(verticalLasers.getObjectsList());
-            add(doors);
-            add(leftWall);
-            add(rightWall);
-            add(ceiling);
-            add(floor);
-            add(backWall);
-            add(frontWall);
+            add(doors.getObjectsList());
+            add(leftWall.getObjectsList());
+            add(rightWall.getObjectsList());
+            add(ceiling.getObjectsList());
+            add(floor.getObjectsList());
+            add(backWall.getObjectsList());
+            add(frontWall.getObjectsList());
         }};
     }
 }

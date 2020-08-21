@@ -29,25 +29,34 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public float camAngle = 2;
     public HealthBar healthBar;
     public F1Screen f1Screen;
+    public Flash flash;
     public Win winScreen;
     public RoomNameAndCoins roomNameAndCoins;
     public Panel panel;
     public boolean showF1 = false;
-    public Texture leftWallTexture, rightWallTexture, frontWallTexture,
+    public Texture coinTexture, leftWallTexture, rightWallTexture, frontWallTexture,
             backWallTexture, ceilingTexture, floorTexture;
     public float roomWidth, roomHeight, roomDepth;
     public float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
     public boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
             IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
-
+    public WavefrontObjectLoader_DisplayList coinModel;
     public static GLCanvas canvas;
     public static Animator animator;
     public static List<List<float[]>> objects;
     public static GLU glu;
     public static Frame frame;
     protected boolean immune = false;
+    public ObjectsForCollision coins = new ObjectsForCollision();
+    public List<Boolean> coinsBoolean = new ArrayList<>();
+    public boolean gobletRises = false;
+    public boolean showFlash = false;
 
     public ObjectsForCollision leftWall, rightWall,ceiling,floor,frontWall,backWall;
+    public ObjectsForCollision goblets = new ObjectsForCollision();
+    public ObjectsForCollision tables = new ObjectsForCollision();
+    public ObjectsForCollision spikesForDrawing = new ObjectsForCollision();
+    public ObjectsForCollision spikesForCollision = new ObjectsForCollision();
 
     public String roomName;
     public String roomNameToShow;
@@ -65,6 +74,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         healthBar = new HealthBar();
         f1Screen = new F1Screen(roomName);
         winScreen = new Win();
+        flash = new Flash();
         roomNameAndCoins = new RoomNameAndCoins();
         panel = new Panel();
         gl.glShadeModel(GL2.GL_SMOOTH);              // Enable Smooth Shading
@@ -128,8 +138,8 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             add("Rooms guide:");
             add("First room: The starting room. avoid the arrows and get to the door!");
             add("Second room: You must move onto the bridge straight to the door and avoid the water at all cost.");
-            add("Third room: Becareful of the Lasers! they can harm you. go fast to the door!");
-            add("Fourth room: OHH hey, the floor may be spikey... it will surprise you :( dont waste time, go to the Goblet!");
+            add("Third room: Be careful of the Lasers! they can harm you. go fast to the door!");
+            add("Fourth room: OHH hey, the floor may be spikey... it will surprise you :( don't waste time, go to the Goblet!");
             add("");
             add("");
             add("Special buttons:");
@@ -143,8 +153,11 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     public void setRoomTextures(GL2 gl) {
+        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
+            String coin = "resources/basicObjects/textures/coin.jpg";
+            coinTexture = TextureIO.newTexture(new File(coin), true);
             String leftWall = "resources/" + roomName + "/roomTextures/leftWall.jpg";
             leftWallTexture = TextureIO.newTexture(new File(leftWall), true);
             String rightWall = "resources/" + roomName + "/roomTextures/rightWall.jpg";
@@ -173,6 +186,50 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public void dispose(GLAutoDrawable glAutoDrawable) {
     }
 
+//    //remove coin by coordinates
+//    public void removeCoin(float[] coin){
+//        for(int i=0; i<coins.getSize(); i++){
+//            if(coin == coins.getObject(i)){
+//                coins.deleteObject(coin);
+//            }
+//        }
+//    }
+
+    //remove coin by index
+    public void removeCoin(int index){
+       coinsBoolean.set(index,false);
+    }
+
+    public boolean checkIfCoinExists(int index){
+        if(coinsBoolean.get(index) == true){
+            return true;
+        }
+        return false;
+    }
+
+    //goblet rises, game ends
+    public void rise(){
+        gobletRises = true;
+    }
+
+    //by index
+    public void getSpikesUp(int index){
+        spikesForDrawing.moveSpike(index,-100);
+    }
+
+    //by coordinates
+    public void getSpikesUp(float[] coordinates){
+        spikesForDrawing.moveSpike(coordinates,-100);
+    }
+
+    public void startFlash(){
+        showFlash = true;
+    }
+
+    public void stopFlash(){
+        showFlash = false;
+    }
+
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         final GL2 gl = glAutoDrawable.getGL().getGL2();
@@ -192,22 +249,25 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             }
             renderer.endRendering();
             gl.glPopAttrib();
-        }else{
-            updateObjectsList();
-            drawPanel(gl);
-            drawObjects(gl);
-            drawHealtbBar(gl);
-            renderer.beginRendering(3000, 2000);
-            renderer.draw(new Integer(GameScore.coins).toString(), 2800, 1900);
-            renderer.endRendering();
-            gl.glPopAttrib();
-            drawRoomNameAndCoins(gl);
-            renderer.beginRendering(3000, 2000);
-            renderer.draw(roomNameToShow, 2700, 1950);
-            renderer.endRendering();
-            gl.glPopAttrib();
-        }
+        }else if(showFlash) {
+            drawFlash(gl);
+        } else {
+                updateObjectsList();
+                drawPanel(gl);
+                drawObjects(gl);
+                drawHealtbBar(gl);
+                renderer.beginRendering(3000, 2000);
+                renderer.draw(new Integer(GameScore.coins).toString(), 2800, 1900);
+                renderer.endRendering();
+                gl.glPopAttrib();
+                drawRoomNameAndCoins(gl);
+                renderer.beginRendering(3000, 2000);
+                renderer.draw(roomNameToShow, 2700, 1950);
+                renderer.endRendering();
+                gl.glPopAttrib();
+            }
     }
+
 
     abstract public void updateObjectsList();
 
@@ -240,6 +300,23 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glPushMatrix();
         gl.glLoadIdentity();
         f1Screen.drawF1(gl);
+        //return the PROJECTION matrix and then to vm
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPopMatrix();
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPopMatrix();
+    }
+
+    public void drawFlash(GL2 gl) {
+        //set to ortho matrix to draw in 2d
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        gl.glOrtho(-0.5f, 10f, -10f, 0.5f, -1f, 1f);
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        flash.drawFlash(gl);
         //return the PROJECTION matrix and then to vm
         gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
         gl.glPopMatrix();
@@ -389,6 +466,25 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         glu.gluPerspective(50.0f, h, 1.0, 1000.0);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
+    }
+
+    public void drawCoins(GL2 gl) {
+        for (int i = 0; i < coins.getSize(); i++) {
+            if(coinsBoolean.get(i)) {
+                drawOneCoin(gl, coins.getObject(i));
+            }
+        }
+        coins.rotateBy(3);
+    }
+
+    public void drawOneCoin(GL2 gl, float[] coordinates) {
+        gl.glPushMatrix();
+        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
+        gl.glScalef(5, 5, 5);
+        gl.glRotatef(coins.getRotation(), 90, 90, 90);
+        coinTexture.bind(gl);
+        coinModel.drawModel(gl);
+        gl.glPopMatrix();
     }
 
     public void keyPressed(KeyEvent e) {
@@ -697,6 +793,4 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         animator.start();
         canvas.requestFocus();
     }
-
-
 }

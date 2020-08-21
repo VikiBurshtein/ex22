@@ -25,15 +25,8 @@ public class FourthRoom extends BaseRoom {
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
     private float gobletRotation = 0.0f;
     private float gobletElevation = -70.0f;
-    private boolean gobletRises = false;
     private boolean showWin = false;
     private Win winningScreen;
-
-    private ObjectsForCollision goblets = new ObjectsForCollision();
-    private ObjectsForCollision tables = new ObjectsForCollision();
-    private ObjectsForCollision spikesForDrawing = new ObjectsForCollision();
-    private ObjectsForCollision spikesForCollision = new ObjectsForCollision();
-    private ObjectsForCollision coins = new ObjectsForCollision();
 
     FourthRoom() {
         roomName = "fourthRoom";
@@ -57,6 +50,7 @@ public class FourthRoom extends BaseRoom {
         roomNameAndCoins = new RoomNameAndCoins();
         panel = new Panel();
         winningScreen = new Win();
+        flash = new Flash();
         gl.glShadeModel(GL2.GL_SMOOTH);              // Enable Smooth Shading
         gl.glClearColor(0.0f, 0.0f, 2.0f, 0.0f);    // Background
         gl.glClearDepth(1.0f);                      // Depth Buffer Setup
@@ -117,7 +111,9 @@ public class FourthRoom extends BaseRoom {
         //if player won
         if(showWin){
             drawWinningScreen(gl);
-        }else {
+        }else if(showFlash) {
+            drawFlash(gl);
+        } else {
             if(showF1) {
                 drawF1(gl);
                 renderer.beginRendering(3000, 2000);
@@ -162,10 +158,6 @@ public class FourthRoom extends BaseRoom {
         gl.glPopMatrix();
     }
 
-    public void rise(){
-        gobletRises = true;
-    }
-
     public void drawObjects(GL2 gl) {
         drawTable(gl);
         drawGoblet(gl);
@@ -173,12 +165,12 @@ public class FourthRoom extends BaseRoom {
         drawCoins(gl);
     }
 
-    public void drawCoins(GL2 gl) {
-        for (int i = 0; i < coins.getSize(); i++) {
-            drawOneCoin(gl, coins.getObject(i));
-        }
-        coins.rotateBy(3);
-    }
+//    public void drawCoins(GL2 gl) {
+//        for (int i = 0; i < coins.getSize(); i++) {
+//            drawOneCoin(gl, coins.getObject(i));
+//        }
+//        coins.rotateBy(3);
+//    }
 
     public void drawTable(GL2 gl) {
         for (int i = 0; i < tables.getSize(); i++) {
@@ -236,22 +228,22 @@ public class FourthRoom extends BaseRoom {
         gl.glPopMatrix();
     }
 
-    public void drawOneCoin(GL2 gl, float[] coordinates) {
-        gl.glPushMatrix();
-        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-        gl.glScalef(5, 5, 5);
-        gl.glRotatef(coins.getRotation(), 90, 90, 90);
-        coinTexture.bind(gl);
-        coinModel.drawModel(gl);
-        gl.glPopMatrix();
-    }
+//    public void drawOneCoin(GL2 gl, float[] coordinates) {
+//        gl.glPushMatrix();
+//        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
+//        gl.glScalef(5, 5, 5);
+//        gl.glRotatef(coins.getRotation(), 90, 90, 90);
+//        coinTexture.bind(gl);
+//        coinModel.drawModel(gl);
+//        gl.glPopMatrix();
+//    }
 
     public void setTextures(GL2 gl) {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
             //objects texture
-            String coin = "resources/basicObjects/textures/coin.jpg";
-            coinTexture = TextureIO.newTexture(new File(coin), true);
+//            String coin = "resources/basicObjects/textures/coin.jpg";
+//            coinTexture = TextureIO.newTexture(new File(coin), true);
             String goblet = "resources/" + roomName + "/objectTextures/goblet.jpg";
             gobletTexture = TextureIO.newTexture(new File(goblet), true);
             String table = "resources/" + roomName + "/objectTextures/table.jpg";
@@ -289,40 +281,39 @@ public class FourthRoom extends BaseRoom {
     }
 
     public void initializeSpikesCoordinates(){
-        float spikesHeightToDraw = -100;
+        float spikesHeightToDraw = -110;
         spikesForDrawing.addObject(new float[]{-100, spikesHeightToDraw, 350});
         spikesForDrawing.addObject(new float[]{100, spikesHeightToDraw, 350});
         spikesForDrawing.addObject(new float[]{-50, spikesHeightToDraw, 250});
         spikesForDrawing.addObject(new float[]{50, spikesHeightToDraw, 250});
         spikesForDrawing.addObject(new float[]{0, spikesHeightToDraw, 150});
-        spikesForDrawing.addObject(new float[]{50, spikesHeightToDraw, 50});
-        spikesForDrawing.addObject(new float[]{-50, spikesHeightToDraw, 50});
-        spikesForDrawing.addObject(new float[]{150, spikesHeightToDraw, 50});
         spikesForDrawing.addObject(new float[]{-150, spikesHeightToDraw, 50});
-        spikesForDrawing.addObject(new float[]{100, spikesHeightToDraw, -50});
+        spikesForDrawing.addObject(new float[]{-50, spikesHeightToDraw, 50});
+        spikesForDrawing.addObject(new float[]{50, spikesHeightToDraw, 50});
+        spikesForDrawing.addObject(new float[]{150, spikesHeightToDraw, 50});
         spikesForDrawing.addObject(new float[]{-100, spikesHeightToDraw, -50});
-        spikesForDrawing.addObject(new float[]{50, spikesHeightToDraw, -150});
+        spikesForDrawing.addObject(new float[]{100, spikesHeightToDraw, -50});
         spikesForDrawing.addObject(new float[]{-50, spikesHeightToDraw, -150});
+        spikesForDrawing.addObject(new float[]{50, spikesHeightToDraw, -150});
 
         spikesForCollision.addObject(new float[]{-100, -100, 350});
         spikesForCollision.addObject(new float[]{100, -100, 350});
         spikesForCollision.addObject(new float[]{-50, -100, 250});
         spikesForCollision.addObject(new float[]{50, -100, 250});
         spikesForCollision.addObject(new float[]{0, -100, 150});
-        spikesForCollision.addObject(new float[]{50, -100, 50});
-        spikesForCollision.addObject(new float[]{-50, -100, 50});
-        spikesForCollision.addObject(new float[]{150, -100, 50});
         spikesForCollision.addObject(new float[]{-150, -100, 50});
-        spikesForCollision.addObject(new float[]{100, -100, -50});
+        spikesForCollision.addObject(new float[]{-50, -100, 50});
+        spikesForCollision.addObject(new float[]{50, -100, 50});
+        spikesForCollision.addObject(new float[]{150, -100, 50});
         spikesForCollision.addObject(new float[]{-100, -100, -50});
-        spikesForCollision.addObject(new float[]{50, -100, -150});
+        spikesForCollision.addObject(new float[]{100, -100, -50});
         spikesForCollision.addObject(new float[]{-50, -100, -150});
-
+        spikesForCollision.addObject(new float[]{50, -100, -150});
     }
 
 
     public void loadObjects() {
-        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
+//        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         tableModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/table.obj");
         gobletModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/goblet.obj");
         spikesModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/spikes.obj");
@@ -334,7 +325,10 @@ public class FourthRoom extends BaseRoom {
     }
 
     public void setPlayer(){
-        player = new PlayerLogic(stepQuanity, camAngle, 1, 1, -1, 0,0,399);
+        float xAxis[] = {1,0,0};
+        float yAxis[] = {0,1,0};
+        float zAxis[] = {0,0,-1};
+        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0,0,399);
     }
 
     public void initializeCoinsCoordinates() {
@@ -347,6 +341,10 @@ public class FourthRoom extends BaseRoom {
         coins.addObject(new float[]{45, -95, 100});
         coins.addObject(new float[]{-90, -95, 200});
         coins.addObject(new float[]{90, -95, 200});
+
+        for(int i=0; i<coins.getSize(); i++){
+            coinsBoolean.add(true);
+        }
     }
 
     @Override
@@ -356,12 +354,12 @@ public class FourthRoom extends BaseRoom {
             add(coins.getObjectsList());
             add(spikesForCollision.getObjectsList());
             add(tables.getObjectsList());
-            add(leftWall);
-            add(rightWall);
-            add(ceiling);
-            add(floor);
-            add(backWall);
-            add(frontWall);
+            add(leftWall.getObjectsList());
+            add(rightWall.getObjectsList());
+            add(ceiling.getObjectsList());
+            add(floor.getObjectsList());
+            add(backWall.getObjectsList());
+            add(frontWall.getObjectsList());
         }};
     }
 }

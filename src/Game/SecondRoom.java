@@ -20,7 +20,6 @@ public class SecondRoom extends BaseRoom {
 
     private ObjectsForCollision paths = new ObjectsForCollision();
     private ObjectsForCollision sharks = new ObjectsForCollision();
-    private ObjectsForCollision coins = new ObjectsForCollision();
     private ObjectsForCollision doors = new ObjectsForCollision();
 
     private float sharksSpeed = 0.5f;
@@ -53,22 +52,22 @@ public class SecondRoom extends BaseRoom {
         }
     }
 
-    public void drawCoins(GL2 gl) {
-        for (int i = 0; i < coins.getSize(); i++) {
-            drawOneCoin(gl, coins.getObject(i));
-        }
-        coins.rotateBy(3);
-    }
-
-    public void drawOneCoin(GL2 gl, float[] coordinates) {
-        gl.glPushMatrix();
-        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-        gl.glScalef(5, 5, 5);
-        gl.glRotatef(coins.getRotation(), 90, 90, 90);
-        coinTexture.bind(gl);
-        coinModel.drawModel(gl);
-        gl.glPopMatrix();
-    }
+//    public void drawCoins(GL2 gl) {
+//        for (int i = 0; i < coins.getSize(); i++) {
+//            drawOneCoin(gl, coins.getObject(i));
+//        }
+//        coins.rotateBy(3);
+//    }
+//
+//    public void drawOneCoin(GL2 gl, float[] coordinates) {
+//        gl.glPushMatrix();
+//        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
+//        gl.glScalef(5, 5, 5);
+//        gl.glRotatef(coins.getRotation(), 90, 90, 90);
+//        coinTexture.bind(gl);
+//        coinModel.drawModel(gl);
+//        gl.glPopMatrix();
+//    }
 
     public void drawSharks(GL2 gl) {
         float[] coordinates;
@@ -120,8 +119,6 @@ public class SecondRoom extends BaseRoom {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
             //objects texture
-            String coin = "resources/basicObjects/textures/coin.jpg";
-            coinTexture = TextureIO.newTexture(new File(coin), true);
             String path = "resources/" + roomName + "/objectTextures/path.jpg";
             pathTexture = TextureIO.newTexture(new File(path), true);
             String shark = "resources/" + roomName + "/objectTextures/shark.jpg";
@@ -134,11 +131,14 @@ public class SecondRoom extends BaseRoom {
     }
 
     public void setPlayer(){
-        player = new PlayerLogic(stepQuanity, camAngle, 1, 1, -1, 0,0,399);
+        float xAxis[] = {0.02f,0,-1f};
+        float yAxis[] = {0,1,0};
+        float zAxis[] = {-1f,0,-0.02f};
+        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0,0,395);
     }
 
     public void loadObjects() {
-        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
+//        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         pathModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/path.obj");
         sharkModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/shark.obj");
         initializeCoinsCoordinates();
@@ -185,6 +185,10 @@ public class SecondRoom extends BaseRoom {
         coins.addObject(new float[]{-90, -50, 380});
         coins.addObject(new float[]{0, -50, 380});
         coins.addObject(new float[]{90, -50, 380});
+
+        for(int i=0; i<coins.getSize(); i++){
+            coinsBoolean.add(true);
+        }
     }
 
     @Override
@@ -193,7 +197,7 @@ public class SecondRoom extends BaseRoom {
         objects = new ArrayList() {{
             add(coins.getObjectsList());
             add(paths.getObjectsList());
-            add(doors);
+            add(doors.getObjectsList());
         }};
     }
 

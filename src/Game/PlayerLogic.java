@@ -13,13 +13,21 @@ public class PlayerLogic{
     public float coordiTranslation[][] = new float[3][3];
     private float tmpcoordiTranslation[][] = new float[3][3];
 
-    public PlayerLogic(float move, float angle, float xA, float yA, float zA, float pos0, float pos1, float pos2) {
+    public PlayerLogic(float move, float angle, float[] xA, float[] yA, float[] zA, float pos0, float pos1, float pos2) {
 
         //start point
-        xAxis[0] = xA;
-        yAxis[1] = yA;
-        zAxis[2] = zA;
-
+        xAxis = xA;
+//        xAxis[0] = 0.02f;
+//        xAxis[1] = 0f;
+//        xAxis[2] = -1f;
+        yAxis = yA;
+//        zAxis[0] = -1f;
+//        zAxis[1] = 0f;
+//        zAxis[2] = -0.02f;
+        zAxis = zA;
+//        System.out.println("xAxis[0] = " + xAxis[0] + " xAxis[1] = " + xAxis[1] + " xAxis[2] = " + xAxis[2]);
+//        System.out.println("yAxis[0] = " + yAxis[0] + " yAxis[1] = " + yAxis[1] + " yAxis[2] = " + yAxis[2]);
+//        System.out.println("zAxis[0] = " + zAxis[0] + " zAxis[1] = " + zAxis[1] + " zAxis[2] = " + zAxis[2]);
         pos[0] = pos0; //right left
         pos[1] = pos1;//up down
         pos[2] = pos2;//in out
