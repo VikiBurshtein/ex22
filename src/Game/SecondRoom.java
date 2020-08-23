@@ -14,8 +14,8 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 public class SecondRoom extends BaseRoom {
-    private Texture coinTexture, pathTexture, sharkTexture;
-    private WavefrontObjectLoader_DisplayList coinModel, pathModel, sharkModel;
+    private Texture pathTexture, sharkTexture;
+    private WavefrontObjectLoader_DisplayList pathModel, sharkModel;
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
 
     private ObjectsForCollision paths = new ObjectsForCollision();
@@ -37,6 +37,7 @@ public class SecondRoom extends BaseRoom {
         objects = new ArrayList<>();
         glu = new GLU();
         frame = new Frame("");
+        initializeCoinsCoordinates();
     }
 
     public void drawObjects(GL2 gl) {
@@ -51,23 +52,6 @@ public class SecondRoom extends BaseRoom {
             drawOnePath(gl, paths.getObject(i));
         }
     }
-
-//    public void drawCoins(GL2 gl) {
-//        for (int i = 0; i < coins.getSize(); i++) {
-//            drawOneCoin(gl, coins.getObject(i));
-//        }
-//        coins.rotateBy(3);
-//    }
-//
-//    public void drawOneCoin(GL2 gl, float[] coordinates) {
-//        gl.glPushMatrix();
-//        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-//        gl.glScalef(5, 5, 5);
-//        gl.glRotatef(coins.getRotation(), 90, 90, 90);
-//        coinTexture.bind(gl);
-//        coinModel.drawModel(gl);
-//        gl.glPopMatrix();
-//    }
 
     public void drawSharks(GL2 gl) {
         float[] coordinates;
@@ -138,7 +122,6 @@ public class SecondRoom extends BaseRoom {
     }
 
     public void loadObjects() {
-//        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         pathModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/path.obj");
         sharkModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/shark.obj");
         initializeCoinsCoordinates();
@@ -166,6 +149,7 @@ public class SecondRoom extends BaseRoom {
     }
 
     public void initializeCoinsCoordinates() {
+        coins = new ObjectsForCollision();
         coins.addObject(new float[]{-90, -50, -380});
         coins.addObject(new float[]{0, -50, -380});
         coins.addObject(new float[]{90, -50, -380});
@@ -186,6 +170,7 @@ public class SecondRoom extends BaseRoom {
         coins.addObject(new float[]{0, -50, 380});
         coins.addObject(new float[]{90, -50, 380});
 
+        coinsBoolean = new ArrayList<>();
         for(int i=0; i<coins.getSize(); i++){
             coinsBoolean.add(true);
         }

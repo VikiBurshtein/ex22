@@ -186,15 +186,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public void dispose(GLAutoDrawable glAutoDrawable) {
     }
 
-//    //remove coin by coordinates
-//    public void removeCoin(float[] coin){
-//        for(int i=0; i<coins.getSize(); i++){
-//            if(coin == coins.getObject(i)){
-//                coins.deleteObject(coin);
-//            }
-//        }
-//    }
-
     //remove coin by index
     public void removeCoin(int index){
        coinsBoolean.set(index,false);

@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class FourthRoom extends BaseRoom {
-    private Texture tableTexture, gobletTexture, spikesTexture, coinTexture;
-    private WavefrontObjectLoader_DisplayList coinModel, tableModel, gobletModel, spikesModel;
+    private Texture tableTexture, gobletTexture, spikesTexture;
+    private WavefrontObjectLoader_DisplayList tableModel, gobletModel, spikesModel;
     private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
     private float gobletRotation = 0.0f;
     private float gobletElevation = -70.0f;
@@ -39,6 +39,7 @@ public class FourthRoom extends BaseRoom {
         objects = new ArrayList<>();
         glu = new GLU();
         frame = new Frame("");
+        initializeCoinsCoordinates();
     }
 
     @Override
@@ -165,13 +166,6 @@ public class FourthRoom extends BaseRoom {
         drawCoins(gl);
     }
 
-//    public void drawCoins(GL2 gl) {
-//        for (int i = 0; i < coins.getSize(); i++) {
-//            drawOneCoin(gl, coins.getObject(i));
-//        }
-//        coins.rotateBy(3);
-//    }
-
     public void drawTable(GL2 gl) {
         for (int i = 0; i < tables.getSize(); i++) {
             drawOneTable(gl, tables.getObject(i));
@@ -228,22 +222,9 @@ public class FourthRoom extends BaseRoom {
         gl.glPopMatrix();
     }
 
-//    public void drawOneCoin(GL2 gl, float[] coordinates) {
-//        gl.glPushMatrix();
-//        gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
-//        gl.glScalef(5, 5, 5);
-//        gl.glRotatef(coins.getRotation(), 90, 90, 90);
-//        coinTexture.bind(gl);
-//        coinModel.drawModel(gl);
-//        gl.glPopMatrix();
-//    }
-
     public void setTextures(GL2 gl) {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         try {
-            //objects texture
-//            String coin = "resources/basicObjects/textures/coin.jpg";
-//            coinTexture = TextureIO.newTexture(new File(coin), true);
             String goblet = "resources/" + roomName + "/objectTextures/goblet.jpg";
             gobletTexture = TextureIO.newTexture(new File(goblet), true);
             String table = "resources/" + roomName + "/objectTextures/table.jpg";
@@ -313,7 +294,6 @@ public class FourthRoom extends BaseRoom {
 
 
     public void loadObjects() {
-//        coinModel = new WavefrontObjectLoader_DisplayList("basicObjects/objects/coin.obj");
         tableModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/table.obj");
         gobletModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/goblet.obj");
         spikesModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/spikes.obj");
@@ -332,6 +312,7 @@ public class FourthRoom extends BaseRoom {
     }
 
     public void initializeCoinsCoordinates() {
+        coins = new ObjectsForCollision();
         coins.addObject(new float[]{-90, -95, -200});
         coins.addObject(new float[]{90, -95, -200});
         coins.addObject(new float[]{-45, -95, -100});
@@ -342,6 +323,7 @@ public class FourthRoom extends BaseRoom {
         coins.addObject(new float[]{-90, -95, 200});
         coins.addObject(new float[]{90, -95, 200});
 
+        coinsBoolean = new ArrayList<>();
         for(int i=0; i<coins.getSize(); i++){
             coinsBoolean.add(true);
         }
