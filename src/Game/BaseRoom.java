@@ -1,3 +1,5 @@
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
 package Game;
 
 import Collide.CollisionCheck;
@@ -20,6 +22,7 @@ import javax.media.opengl.glu.GLU;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +40,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public Texture coinTexture, leftWallTexture, rightWallTexture, frontWallTexture,
             backWallTexture, ceilingTexture, floorTexture;
     public float roomWidth, roomHeight, roomDepth;
-    public float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
     public boolean WIsPressed, SIsPressed, AIsPressed, DIsPressed, EIsPressed, QIsPressed,
             IIsPressed, KIsPressed, LIsPressed, JIsPressed, OIsPressed, UIsPressed;
     public WavefrontObjectLoader_DisplayList coinModel;
@@ -52,7 +54,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public boolean gobletRises = false;
     public boolean showFlash = false;
 
-    public ObjectsForCollision leftWall, rightWall,ceiling,floor,frontWall,backWall;
+    public ObjectsForCollision leftWall, rightWall, ceiling, floor, frontWall, backWall;
     public ObjectsForCollision goblets = new ObjectsForCollision();
     public ObjectsForCollision tables = new ObjectsForCollision();
     public ObjectsForCollision spikesForDrawing = new ObjectsForCollision();
@@ -60,6 +62,10 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     public String roomName;
     public String roomNameToShow;
+
+    float color[] = {1f, 1f, 1f, 1f};
+    float ambient[] = {0.05f, 0.05f, 0.05f, 1.0f};
+    float position[] = {0,0,1,0};
 
     TextRenderer renderer;
 
@@ -70,13 +76,16 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
+
         final GL2 gl = glAutoDrawable.getGL().getGL2();
+
         healthBar = new HealthBar();
         f1Screen = new F1Screen(roomName);
         winScreen = new Win();
         flash = new Flash();
         roomNameAndCoins = new RoomNameAndCoins();
         panel = new Panel();
+
         gl.glShadeModel(GL2.GL_SMOOTH);              // Enable Smooth Shading
         gl.glClearColor(0.0f, 0.0f, 2.0f, 0.0f);    // Background
         gl.glClearDepth(1.0f);                      // Depth Buffer Setup
@@ -85,6 +94,11 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+
+        //light
+        gl.glEnable(GL2.GL_LIGHTING);
+        gl.glEnable(GL2.GL_LIGHT0);
+
         setPlayer();
         setTextures(gl);
         loadObjects();
@@ -100,16 +114,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             new AWTKeyAdapter(this, glAutoDrawable).addTo(comp);
         }
 
-        // Light
-//        float	ambient[] = {0.1f,0.1f,0.1f,1.0f};
-//        float	diffuse0[] = {1f,0f,0f,1.0f};
-//
-//        gl.glShadeModel(GL2.GL_SMOOTH);
-//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse0, 0);
-//        gl.glEnable(GL2.GL_LIGHT0);
-//
-//        gl.glEnable(GL2.GL_LIGHTING);
         WIsPressed = false;
         SIsPressed = false;
         AIsPressed = false;
@@ -124,8 +128,10 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         UIsPressed = false;
     }
 
-    public void setInstructions(){
+    public void setInstructions() {
         F1Screen.instructions = new ArrayList() {{
+            add("");
+            add("");
             add("Welcome to our Computational Graphics Escape room!");
             add("");
             add("Objective: You need to get to the goblet!");
@@ -136,7 +142,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             add("");
             add("");
             add("Rooms guide:");
-            add("First room: The starting room. avoid the arrows and get to the door!");
+            add("First room: The starting room. avoid the bullets and get to the door!");
             add("Second room: You must move onto the bridge straight to the door and avoid the water at all cost.");
             add("Third room: Be careful of the Lasers! they can harm you. go fast to the door!");
             add("Fourth room: OHH hey, the floor may be spikey... it will surprise you :( don't waste time, go to the Goblet!");
@@ -187,37 +193,37 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     //remove coin by index
-    public void removeCoin(int index){
-       coinsBoolean.set(index,false);
+    public void removeCoin(int index) {
+        coinsBoolean.set(index, false);
     }
 
-    public boolean checkIfCoinExists(int index){
-        if(coinsBoolean.get(index) == true){
+    public boolean checkIfCoinExists(int index) {
+        if (coinsBoolean.get(index) == true) {
             return true;
         }
         return false;
     }
 
     //goblet rises, game ends
-    public void rise(){
+    public void rise() {
         gobletRises = true;
     }
 
     //by index
-    public void getSpikesUp(int index){
-        spikesForDrawing.moveSpike(index,-100);
+    public void getSpikesUp(int index) {
+        spikesForDrawing.moveOneObjectUpByIndex(index, -100);
     }
 
     //by coordinates
-    public void getSpikesUp(float[] coordinates){
-        spikesForDrawing.moveSpike(coordinates,-100);
+    public void getSpikesUp(float[] coordinates) {
+        spikesForDrawing.moveOneObjectUpByCoordinates(coordinates, -100);
     }
 
-    public void startFlash(){
+    public void startFlash() {
         showFlash = true;
     }
 
-    public void stopFlash(){
+    public void stopFlash() {
         showFlash = false;
     }
 
@@ -227,38 +233,45 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         player.setLookAtPoint();
         gl.glLoadIdentity();  // Reset The View
+
+        //light
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, FloatBuffer.wrap(ambient));
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, FloatBuffer.wrap(color));
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, FloatBuffer.wrap(color));
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, FloatBuffer.wrap(position));
+
         glu.gluLookAt(player.pos[0], player.pos[1], player.pos[2],//Specifies the position of the eye point.
                 player.look[0], player.look[1], player.look[2], //Specifies the position of the reference point.
                 player.yAxis[0], player.yAxis[1], player.yAxis[2]); //Specifies the direction of the up vector.
+
         drawRoom(gl);
-        if(showF1) {
+        if (showF1) {
             drawF1(gl);
             renderer.beginRendering(3000, 2000);
             int enter = 40;
-            for(int i=0; i<F1Screen.instructions.size(); i++){
-                renderer.draw(F1Screen.instructions.get(i), 300, 1700 - (enter * i));
+            for (int i = 0; i < F1Screen.instructions.size(); i++) {
+                renderer.draw(F1Screen.instructions.get(i), 350, 1700 - (enter * i));
             }
             renderer.endRendering();
             gl.glPopAttrib();
-        }else if(showFlash) {
+        } else if (showFlash) {
             drawFlash(gl);
         } else {
-                updateObjectsList();
-                drawPanel(gl);
-                drawObjects(gl);
-                drawHealtbBar(gl);
-                renderer.beginRendering(3000, 2000);
-                renderer.draw(new Integer(GameScore.coins).toString(), 2800, 1900);
-                renderer.endRendering();
-                gl.glPopAttrib();
-                drawRoomNameAndCoins(gl);
-                renderer.beginRendering(3000, 2000);
-                renderer.draw(roomNameToShow, 2700, 1950);
-                renderer.endRendering();
-                gl.glPopAttrib();
-            }
+            updateObjectsList();
+            drawPanel(gl);
+            drawObjects(gl);
+            drawHealtbBar(gl);
+            renderer.beginRendering(3000, 2000);
+            renderer.draw(new Integer(GameScore.coins).toString(), 2800, 1900);
+            renderer.endRendering();
+            gl.glPopAttrib();
+            drawRoomNameAndCoins(gl);
+            renderer.beginRendering(3000, 2000);
+            renderer.draw(roomNameToShow, 2700, 1950);
+            renderer.endRendering();
+            gl.glPopAttrib();
+        }
     }
-
 
     abstract public void updateObjectsList();
 
@@ -352,15 +365,26 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
 
     public void drawRoom(GL2 gl) {
+        gl.glEnable(GL2.GL_NORMALIZE);
+
         gl.glPushMatrix();
         gl.glTranslatef(0.0f, 0.0f, 0.0f);
         gl.glScalef(roomWidth, roomHeight, roomDepth);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+
+        float m_color[] = {1f, 1f, 1f, 1f};
+        float[] s_color = {1f, 1f, 1f, 1f};
+        float[] shininess = {120.0f};
+
+
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, m_color, 0);
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, FloatBuffer.wrap(s_color));
+        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, gl.GL_SHININESS, FloatBuffer.wrap(shininess));
+
 
         //Back wall
         backWallTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(0, 0, 1);
+        gl.glNormal3f(0, 0, -1);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(-1.0f, -1.0f, 1.0f);
         gl.glTexCoord2f(1f, 0.0f);
@@ -374,7 +398,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         //Front wall
         frontWallTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(0, 0, -1);
+        gl.glNormal3f(0, 0, 1);
         gl.glTexCoord2f(1.0f, 0.0f);
         gl.glVertex3f(-1.0f, -1.0f, -1.0f);
         gl.glTexCoord2f(1.0f, 1.0f);
@@ -388,7 +412,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         //Right wall
         rightWallTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(1, 0, 0);
+        gl.glNormal3f(-1, 0, 0);
         gl.glTexCoord2f(1.0f, 0.0f);
         gl.glVertex3f(1.0f, -1.0f, -1.0f);
         gl.glTexCoord2f(1.0f, 1.0f);
@@ -402,7 +426,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         //Left wall
         leftWallTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(-1, 0, 0);
+        gl.glNormal3f(1, 0, 0);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(-1.0f, -1.0f, -1.0f);
         gl.glTexCoord2f(1.0f, 0.0f);
@@ -416,7 +440,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         //ceiling
         ceilingTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(0, 1, 0);
+        gl.glNormal3f(0, -1, 0);
         gl.glTexCoord2f(0.0f, 1.0f);
         gl.glVertex3f(-1.0f, 1.0f, -1.0f);
         gl.glTexCoord2f(0.0f, 0.0f);
@@ -430,7 +454,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         //floor
         floorTexture.bind(gl);
         gl.glBegin(GL2.GL_QUADS);
-        gl.glNormal3f(0, -1, 0);
+        gl.glNormal3f(0, 1, 0);
         gl.glTexCoord2f(1.0f, 1.0f);
         gl.glVertex3f(-1.0f, -1.0f, -1.0f);
         gl.glTexCoord2f(0.0f, 1.0f);
@@ -461,18 +485,18 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
 
     public void drawCoins(GL2 gl) {
         for (int i = 0; i < coins.getSize(); i++) {
-            if(coinsBoolean.get(i)) {
-                drawOneCoin(gl, coins.getObject(i));
+            if (coinsBoolean.get(i)) {
+                drawOneCoin(gl, coins.getObject(i), i);
             }
+            coins.rotateOneBy(3, i);
         }
-        coins.rotateBy(3);
     }
 
-    public void drawOneCoin(GL2 gl, float[] coordinates) {
+    public void drawOneCoin(GL2 gl, float[] coordinates, int index) {
         gl.glPushMatrix();
         gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
         gl.glScalef(5, 5, 5);
-        gl.glRotatef(coins.getRotation(), 90, 90, 90);
+        gl.glRotatef(coins.getRotation(index), 90, 90, 90);
         coinTexture.bind(gl);
         coinModel.drawModel(gl);
         gl.glPopMatrix();
@@ -491,44 +515,44 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             case KeyEvent.VK_W:
                 moved = true;
                 WIsPressed = true;
-                future = player.getFuturePlaceOfMove(0,0,11);
-                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
+                future = player.getFuturePlaceOfMove(0, 0, 11);
+                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
                 break;
             case KeyEvent.VK_S:
                 moved = true;
                 SIsPressed = true;
-                future = player.getFuturePlaceOfMove(0,0,-11);
-                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
+                future = player.getFuturePlaceOfMove(0, 0, -11);
+                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
                 break;
             case KeyEvent.VK_D:
                 moved = true;
                 DIsPressed = true;
-                future = player.getFuturePlaceOfMove(11,0,0);
-                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
+                future = player.getFuturePlaceOfMove(11, 0, 0);
+                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
                 break;
             case KeyEvent.VK_A:
                 moved = true;
                 AIsPressed = true;
-                future = player.getFuturePlaceOfMove(-11,0,0);
-                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
+                future = player.getFuturePlaceOfMove(-11, 0, 0);
+                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
                 break;
             case KeyEvent.VK_E:
                 moved = true;
                 EIsPressed = true;
-                if(roomName.equals("secondRoom")){
+                if (roomName.equals("secondRoom")) {
                     break;
                 }
-                future = player.getFuturePlaceOfMove(0,11,0);
-                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
+                future = player.getFuturePlaceOfMove(0, 11, 0);
+                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
                 break;
             case KeyEvent.VK_Q:
                 moved = true;
                 QIsPressed = true;
-                if(roomName.equals("secondRoom")){
+                if (roomName.equals("secondRoom")) {
                     break;
                 }
-                future = player.getFuturePlaceOfMove(0,-11,0);
-                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
+                future = player.getFuturePlaceOfMove(0, -11, 0);
+                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
                 break;
             //camera movement:
             case KeyEvent.VK_I:
@@ -561,72 +585,58 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             default:
                 break;
         }
-        if(moved){
+        if (moved) {
             float[] move = new float[3];
-            if(WIsPressed){
+            if (WIsPressed) {
                 move[0] = 0;
                 move[1] = 0;
                 move[2] = 11;
-            }
-            else if(SIsPressed){
+            } else if (SIsPressed) {
                 move[0] = 0;
                 move[1] = 0;
                 move[2] = -11;
-            }
-            else if(DIsPressed){
+            } else if (DIsPressed) {
                 move[0] = 11;
                 move[1] = 0;
                 move[2] = 0;
-            }
-            else if(AIsPressed){
+            } else if (AIsPressed) {
                 move[0] = -11;
                 move[1] = 0;
                 move[2] = 0;
-            }
-            else if(EIsPressed){
+            } else if (EIsPressed) {
                 move[0] = 0;
                 move[1] = 11;
                 move[2] = 0;
-            }
-            else if(QIsPressed){
+            } else if (QIsPressed) {
                 move[0] = 0;
                 move[1] = -11;
                 move[2] = 0;
             }
-            if(instruction == 0){
-                player.move(move[0],move[1],move[2]);
-            }
-            else if(instruction == 1){
+            if (instruction == 0) {
+                player.move(move[0], move[1], move[2]);
+            } else if (instruction == 1) {
 
-            }
-            else if(instruction == 2){
+            } else if (instruction == 2) {
 
-            }
-            else if(instruction == 3){
+            } else if (instruction == 3) {
 
-            }
-            else if(instruction == 4){
+            } else if (instruction == 4) {
 
-            }
-            else if(instruction == 5){
+            } else if (instruction == 5) {
 
-            }
-            else if(instruction == 6){
+            } else if (instruction == 6) {
 
-            }
-            else if(instruction == 7){
+            } else if (instruction == 7) {
 
-            }
-            else if(instruction == 8){
+            } else if (instruction == 8) {
 
-            }
-            else if(instruction == 9){
+            } else if (instruction == 9) {
 
             }
         }
-        if(hit && !immune){
+        if (hit && !immune) {
             immune = true;
-            if(changeBar("damage")){
+            if (changeBar("damage")) {
                 GameScore.reset();
                 Loader.runNewRoom("firstRoom");
                 return;
@@ -716,26 +726,27 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         }
     }
 
-    public void updateScoreAndBarView(){
+    public void updateScoreAndBarView() {
         int currLife = GameScore.life;//2 = 100%, 1 = 50%, 0 = 0%
         int currCoins = GameScore.coins;
         //viki update them in VIEW
     }
 
-    public void changeScore(String command){
+    public void changeScore(String command) {
         GameScore.changeScore(command);
         int currCoins = GameScore.coins;
         updateScoreAndBarView();
     }
 
     /*returns true iff we need to restart */
-    public boolean changeBar(String command){
+    public boolean changeBar(String command) {
         boolean endGame = GameScore.changeBar(command);
-        if(!endGame){
+        if (!endGame) {
             updateScoreAndBarView();
         }
         return endGame;
     }
+
     public void exit(boolean system) {
         animator.stop();
         frame.remove(canvas);
@@ -754,7 +765,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         objects = null;
     }
 
-    public void advance(){
+    public void advance() {
         if (roomName.equals("firstRoom")) {
             Loader.runNewRoom("secondRoom");
         } else if (roomName.equals("secondRoom")) {
@@ -763,6 +774,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             Loader.runNewRoom("fourthRoom");
         }
     }
+
     public void start() {
         canvas.addGLEventListener(this);
         frame.add(canvas);

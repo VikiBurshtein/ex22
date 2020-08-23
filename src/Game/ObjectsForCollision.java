@@ -1,3 +1,5 @@
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
 package Game;
 
 import java.util.ArrayList;
@@ -5,26 +7,25 @@ import java.util.List;
 
 public class ObjectsForCollision {
     public List<float[]> objectsList = new ArrayList<>();
-    private float rotation = 0;
+    private List<Float> rotation = new ArrayList<>();
 
-    public void rotateBy(float angle) {
-        rotation = (rotation + angle) % 360;
+    public void rotateAllBy(float angle) {
+        for(int i=0; i<rotation.size(); i++){
+            rotation.set(i, (rotation.get(i) + angle) % 360);
+        }
     }
 
-    public float getRotation(){
-        return rotation;
+    public void rotateOneBy(float angle, int index) {
+        rotation.set(index, (rotation.get(index) + angle) % 360);
+    }
+
+    public float getRotation(int index){
+        return rotation.get(index);
     }
 
     public void addObject(float[] coordinates) {
         objectsList.add(coordinates);
-    }
-
-    public void deleteObject(float[] coordinates) {
-        objectsList.remove(coordinates);
-    }
-
-    public void deleteObject(int index) {
-        objectsList.remove(index);
+        rotation.add(0f);
     }
 
     public float[] getObject(int number) {
@@ -46,13 +47,13 @@ public class ObjectsForCollision {
         return obj;
     }
 
-    public void moveSpike(int index, float y) {
+    public void moveOneObjectUpByIndex(int index, float y) {
         float[] newCoordinates = objectsList.get(index);
         newCoordinates[1] = y;
         objectsList.set(index, newCoordinates);
     }
 
-    public void moveSpike(float[] coordinates, float y) {
+    public void moveOneObjectUpByCoordinates(float[] coordinates, float y) {
         int index = -1;
         for(int i=0; i<objectsList.size(); i++){
             if(objectsList.get(i)[0] == coordinates[0] && objectsList.get(i)[1] == coordinates[1] && objectsList.get(i)[0] == coordinates[0]){

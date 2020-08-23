@@ -1,3 +1,5 @@
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
 package Game;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -30,6 +32,10 @@ public class RoomNameAndCoins {
 
 
     public void drawRoomNameAndCoins(GL2 gl) {
+        //light
+        gl.glDisable(GL2.GL_LIGHTING);
+        gl.glDisable(GL2.GL_LIGHT0);
+
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
 
@@ -52,5 +58,9 @@ public class RoomNameAndCoins {
 
 
         gl.glEnd();
+
+        //light
+        gl.glEnable(GL2.GL_LIGHTING);
+        gl.glEnable(GL2.GL_LIGHT0);
     }
 }

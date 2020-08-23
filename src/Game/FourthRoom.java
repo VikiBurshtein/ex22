@@ -1,4 +1,6 @@
-package Game;//names ids
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
+package Game;
 
 import com.jogamp.newt.Window;
 import com.jogamp.newt.event.awt.AWTKeyAdapter;
@@ -16,6 +18,7 @@ import javax.media.opengl.glu.GLU;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -60,6 +63,11 @@ public class FourthRoom extends BaseRoom {
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+
+        //light
+        gl.glEnable(GL2.GL_LIGHTING);
+        gl.glEnable(GL2.GL_LIGHT0);
+
         setPlayer();
         setTextures(gl);
         loadObjects();
@@ -75,28 +83,19 @@ public class FourthRoom extends BaseRoom {
             new AWTKeyAdapter(this, glAutoDrawable).addTo(comp);
         }
 
-        // Light
-//        float	ambient[] = {0.1f,0.1f,0.1f,1.0f};
-//        float	diffuse0[] = {1f,0f,0f,1.0f};
-//
-//        gl.glShadeModel(GL2.GL_SMOOTH);
-//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-//        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse0, 0);
-//        gl.glEnable(GL2.GL_LIGHT0);
-//
-//        gl.glEnable(GL2.GL_LIGHTING);
-//        WIsPressed = false;
-//        SIsPressed = false;
-//        AIsPressed = false;
-//        DIsPressed = false;
-//        EIsPressed = false;
-//        QIsPressed = false;
-//        IIsPressed = false;
-//        KIsPressed = false;
-//        LIsPressed = false;
-//        JIsPressed = false;
-//        OIsPressed = false;
-//        UIsPressed = false;
+
+        WIsPressed = false;
+        SIsPressed = false;
+        AIsPressed = false;
+        DIsPressed = false;
+        EIsPressed = false;
+        QIsPressed = false;
+        IIsPressed = false;
+        KIsPressed = false;
+        LIsPressed = false;
+        JIsPressed = false;
+        OIsPressed = false;
+        UIsPressed = false;
     }
 
     @Override
@@ -105,9 +104,17 @@ public class FourthRoom extends BaseRoom {
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         player.setLookAtPoint();
         gl.glLoadIdentity();  // Reset The View
+
+        //light
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, FloatBuffer.wrap(ambient));
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, FloatBuffer.wrap(color));
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, FloatBuffer.wrap(color));
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, FloatBuffer.wrap(position));
+
         glu.gluLookAt(player.pos[0], player.pos[1], player.pos[2],//Specifies the position of the eye point.
                 player.look[0], player.look[1], player.look[2], //Specifies the position of the reference point.
                 player.yAxis[0], player.yAxis[1], player.yAxis[2]); //Specifies the direction of the up vector.
+
         drawRoom(gl);
         //if player won
         if(showWin){
@@ -176,7 +183,7 @@ public class FourthRoom extends BaseRoom {
         for (int i = 0; i < goblets.getSize(); i++) {
             drawOneGoblet(gl, goblets.getObject(i));
         }
-        goblets.rotateBy(1);
+        goblets.rotateAllBy(1);
     }
 
     public void drawSpikes(GL2 gl) {
@@ -215,7 +222,7 @@ public class FourthRoom extends BaseRoom {
         gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
         gl.glScalef(5, 5, 5);
         if (gobletRises) {
-            gl.glRotatef(goblets.getRotation(), 0, goblets.getRotation(), 0);
+            gl.glRotatef(goblets.getRotation(0), 0, goblets.getRotation(0), 0);
         }
         gobletTexture.bind(gl);
         gobletModel.drawModel(gl);
@@ -308,7 +315,7 @@ public class FourthRoom extends BaseRoom {
         float xAxis[] = {1,0,0};
         float yAxis[] = {0,1,0};
         float zAxis[] = {0,0,-1};
-        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0,0,399);
+        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0,0,395);
     }
 
     public void initializeCoinsCoordinates() {

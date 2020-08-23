@@ -1,4 +1,6 @@
-package Game;//names ids
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
+package Game;
 
 import java.awt.Frame;
 import java.io.File;
@@ -118,7 +120,7 @@ public class SecondRoom extends BaseRoom {
         float xAxis[] = {0.02f,0,-1f};
         float yAxis[] = {0,1,0};
         float zAxis[] = {-1f,0,-0.02f};
-        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0,0,395);
+        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0,-50,395);
     }
 
     public void loadObjects() {

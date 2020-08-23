@@ -1,3 +1,5 @@
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
 package Game;
 
 import com.jogamp.opengl.util.texture.Texture;

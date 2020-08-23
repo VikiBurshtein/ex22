@@ -1,21 +1,6 @@
-package Game; /**
- ** __ __|_ ___________________________________________________________________________ ___|__ __
- ** // /\ _ /\ \\
- ** //____/ \__ __ _____ _____ _____ _____ _____ | | __ _____ _____ __ __/ \____\\
- ** \ \ / / __| | | __| _ | | _ | | | __| | | __| | /\ \ / /
- ** \____\/_/ | | | | | | | | | | | __| | | | | | | | | | |__ " \_\/____/
- ** /\ \ |_____|_____|_____|__|__|_|_|_|__| | | |_____|_____|_____|_____| _ / /\
- ** / \____\ http://jogamp.org |_| /____/ \
- ** \ / "' _________________________________________________________________________ `" \ /
- ** \/____. .____\/
- **
- ** Wavefront .obj mesh loader with vertices, face and normal support. Provides a convenience
- ** method to load the whole model as display-list. The code is slightly modified copypasta from
- ** the open source project "jglmark" (https://jglmark.dev.java.net/). Original author is Chris
- ** "Crash0veride007" Brown (crash0veride007@gmail.com). Also added support for compressed mesh
- ** files (.zip).
- **
- **/
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
+package Game;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

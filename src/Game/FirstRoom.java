@@ -1,4 +1,6 @@
-package Game;//names ids
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
+package Game;
 
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.texture.Texture;
@@ -15,18 +17,9 @@ import java.util.ArrayList;
 public class FirstRoom extends BaseRoom {
     private Texture monkeyTexture, ballTexture;
     private WavefrontObjectLoader_DisplayList monkeyModel, ballModel;
-    private ObjectsForCollision monkeys1 = new ObjectsForCollision();
-    private ObjectsForCollision monkeys2 = new ObjectsForCollision();
-    private ObjectsForCollision monkeys3 = new ObjectsForCollision();
-    private ObjectsForCollision monkeys4 = new ObjectsForCollision();
-    private ObjectsForCollision balls1 = new ObjectsForCollision();
-    private ObjectsForCollision balls2 = new ObjectsForCollision();
-    private ObjectsForCollision balls3 = new ObjectsForCollision();
-    private ObjectsForCollision balls4 = new ObjectsForCollision();
+    private ObjectsForCollision monkeys = new ObjectsForCollision();
+    private ObjectsForCollision balls = new ObjectsForCollision();
     private ObjectsForCollision doors = new ObjectsForCollision();
-
-
-    private float position0[] = {10f, 0f, -5f, 1.0f};    // red light on the cubes from the top
 
     private boolean monkeyUp = false;
     private boolean shoot = false;
@@ -47,16 +40,6 @@ public class FirstRoom extends BaseRoom {
 
     public void updateObjectsList() {
         //<Coins><Monkeys><Balls><Door><Left wall><Right wall><ceiling><floor><Back wall><Front Wall>
-        ObjectsForCollision monkeys = new ObjectsForCollision();
-        monkeys.addObject(monkeys1.getObject(0));
-        monkeys.addObject(monkeys2.getObject(0));
-        monkeys.addObject(monkeys3.getObject(0));
-        monkeys.addObject(monkeys4.getObject(0));
-        ObjectsForCollision balls = new ObjectsForCollision();
-        balls.addObject(balls1.getObject(0));
-        balls.addObject(balls2.getObject(0));
-        balls.addObject(balls3.getObject(0));
-        balls.addObject(balls4.getObject(0));
         objects = new ArrayList() {{
             add(coins.getObjectsList());
             add(monkeys.getObjectsList());
@@ -83,130 +66,90 @@ public class FirstRoom extends BaseRoom {
             float[] monkey;
 
             //first ball
-            coordinates = balls1.getObject(0);
-            coordinates = balls1.moveObject(coordinates, 3f, 0, 6f);
+            coordinates = balls.getObject(0);
+            coordinates = balls.moveObject(coordinates, 3f, 0, 6f);
             drawOneBall(gl, coordinates);
 
             if (coordinates[2] > 400) {
                 shoot = false;
-                monkey = monkeys1.getObject(0);
-                balls1.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
+                monkey = monkeys.getObject(0);
+                balls.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
             }
 
             //second ball
-            coordinates = balls2.getObject(0);
-            coordinates = balls2.moveObject(coordinates, -3f, 0, 6f);
+            coordinates = balls.getObject(1);
+            coordinates = balls.moveObject(coordinates, -3f, 0, 6f);
             drawOneBall(gl, coordinates);
 
             if (coordinates[2] > 400) {
-                monkey = monkeys2.getObject(0);
-                balls2.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
+                monkey = monkeys.getObject(1);
+                balls.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
             }
 
             //third ball
-            coordinates = balls3.getObject(0);
-            coordinates = balls3.moveObject(coordinates, -3f, 0, -6f);
+            coordinates = balls.getObject(2);
+            coordinates = balls.moveObject(coordinates, -3f, 0, -6f);
             drawOneBall(gl, coordinates);
 
             if (coordinates[2] < -400) {
-                monkey = monkeys3.getObject(0);
-                balls3.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
+                monkey = monkeys.getObject(2);
+                balls.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
             }
 
             //fourth ball
-            coordinates = balls4.getObject(0);
-            coordinates = balls4.moveObject(coordinates, 3f, 0, -6f);
+            coordinates = balls.getObject(3);
+            coordinates = balls.moveObject(coordinates, 3f, 0, -6f);
             drawOneBall(gl, coordinates);
 
             if (coordinates[2] < -400) {
-                monkey = monkeys4.getObject(0);
-                balls4.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
+                monkey = monkeys.getObject(3);
+                balls.moveObjectTo(coordinates, monkey[0], monkey[1] - 10, monkey[2]);
             }
         } else {
-            float[] coordinates1 = balls1.getObject(0);
-            float[] coordinates2 = balls2.getObject(0);
-            float[] coordinates3 = balls3.getObject(0);
-            float[] coordinates4 = balls4.getObject(0);
-            if (monkeyUp) {
-                coordinates1 = balls1.moveObject(coordinates1, 0, 0.2f, 0);
-                coordinates2 = balls2.moveObject(coordinates2, 0, 0.2f, 0);
-                coordinates3 = balls3.moveObject(coordinates3, 0, 0.2f, 0);
-                coordinates4 = balls4.moveObject(coordinates4, 0, 0.2f, 0);
-            } else {
-                coordinates1 = balls1.moveObject(coordinates1, 0, -0.2f, 0);
-                coordinates2 = balls2.moveObject(coordinates2, 0, -0.2f, 0);
-                coordinates3 = balls3.moveObject(coordinates3, 0, -0.2f, 0);
-                coordinates4 = balls4.moveObject(coordinates4, 0, -0.2f, 0);
+            for (int i=0; i<balls.getSize(); i++) {
+                coordinates = balls.getObject(i);
+                if (monkeyUp) {
+                    coordinates = balls.moveObject(coordinates, 0, 0.2f, 0);
+                } else {
+                    coordinates = balls.moveObject(coordinates, 0, -0.2f, 0);
+                }
+                drawOneBall(gl, coordinates);
+                if ((int) coordinates[1] == -50 || (int) coordinates[1] == 30) {
+                    shoot = true;
+                }
             }
-            if ((int) coordinates1[1] == -50 || (int) coordinates1[1] == 30) {
-                shoot = true;
-            }
-            drawOneBall(gl, coordinates1);
-            drawOneBall(gl, coordinates2);
-            drawOneBall(gl, coordinates3);
-            drawOneBall(gl, coordinates4);
         }
     }
 
 
     public void drawMonkeys(GL2 gl) {
-        float[] coordinates1,coordinates2,coordinates3,coordinates4;
-        for (int i = 0; i < monkeys1.getSize(); i++) {
-            coordinates1 = monkeys1.getObject(i);
-            coordinates2 = monkeys2.getObject(i);
-            coordinates3 = monkeys3.getObject(i);
-            coordinates4 = monkeys4.getObject(i);
+        float[] coordinates;
+        for (int i = 0; i < monkeys.getSize(); i++) {
+            coordinates = monkeys.getObject(i);
 
             //check if reached top or bottom and move
-            if (coordinates1[1] > roomHeight - 20) {
+            if (coordinates[1] > roomHeight - 20) {
                 monkeyUp = false;
             }
-            if (coordinates1[1] < -(roomHeight - 20)) {
+            if (coordinates[1] < -(roomHeight - 20)) {
                 monkeyUp = true;
             }
 
             if (monkeyUp) {
-                coordinates1 = monkeys1.moveObject(coordinates1, 0, 0.2f, 0);
-                drawOneMonkey(gl, coordinates1,1);
-
-                coordinates2 = monkeys2.moveObject(coordinates2, 0, 0.2f, 0);
-                drawOneMonkey(gl, coordinates2,2);
-
-                coordinates3 = monkeys3.moveObject(coordinates3, 0, 0.2f, 0);
-                drawOneMonkey(gl, coordinates3,3);
-
-                coordinates4 = monkeys4.moveObject(coordinates4, 0, 0.2f, 0);
-                drawOneMonkey(gl, coordinates4,4);
+                coordinates = monkeys.moveObject(coordinates, 0, 0.2f, 0);
+                drawOneMonkey(gl, coordinates,i);
             } else {
-                coordinates1 = monkeys1.moveObject(coordinates1, 0, -0.2f, 0);
-                drawOneMonkey(gl, coordinates1,1);
-
-                coordinates2 = monkeys2.moveObject(coordinates2, 0, -0.2f, 0);
-                drawOneMonkey(gl, coordinates2,2);
-
-                coordinates3 = monkeys3.moveObject(coordinates3, 0, -0.2f, 0);
-                drawOneMonkey(gl, coordinates3,3);
-
-                coordinates4 = monkeys4.moveObject(coordinates4, 0, -0.2f, 0);
-                drawOneMonkey(gl, coordinates4,4);
+                coordinates = monkeys.moveObject(coordinates, 0, -0.2f, 0);
             }
+            drawOneMonkey(gl, coordinates,i);
         }
     }
 
-    public void drawOneMonkey(GL2 gl, float[] coordinates, int number) {
+    public void drawOneMonkey(GL2 gl, float[] coordinates, int index) {
         gl.glPushMatrix();
         gl.glTranslatef(coordinates[0], coordinates[1], coordinates[2]);
         gl.glScalef(15, 15, 15);
-        if(number == 1){
-            gl.glRotatef(monkeys1.getRotation(), 0, monkeys1.getRotation(), 0);
-        } else if(number == 2){
-            gl.glRotatef(monkeys2.getRotation(), 0, monkeys2.getRotation(), 0);
-        } else if(number == 3){
-            gl.glRotatef(monkeys3.getRotation(), 0, monkeys3.getRotation(), 0);
-        } else {
-            gl.glRotatef(monkeys4.getRotation(), 0, monkeys4.getRotation(), 0);
-        }
-
+        gl.glRotatef(monkeys.getRotation(index), 0, monkeys.getRotation(index), 0);
         monkeyTexture.bind(gl);
         monkeyModel.drawModel(gl);
         gl.glPopMatrix();
@@ -269,21 +212,17 @@ public class FirstRoom extends BaseRoom {
     }
 
     public void initializeMonkeysCoordinates() {
-        float[] monkey1 = {-150, -80, -350};
-        monkeys1.addObject(monkey1);
-        monkeys1.rotateBy(25);
+        monkeys.addObject(new float[] {-150, -80, -350});
+        monkeys.rotateOneBy(25,0);
 
-        float[] monkey2 = {150, -80, -350};
-        monkeys2.addObject(monkey2);
-        monkeys2.rotateBy(335);
+        monkeys.addObject(new float[] {150, -80, -350});
+        monkeys.rotateOneBy(335,1);
 
-        float[] monkey3 = {150, -80, 350};
-        monkeys3.addObject(monkey3);
-        monkeys3.rotateBy(235);
+        monkeys.addObject(new float[] {150, -80, 350});
+        monkeys.rotateOneBy(235,2);
 
-        float[] monkey4 = {-150, -80, 350};
-        monkeys4.addObject(monkey4);
-        monkeys4.rotateBy(115);
+        monkeys.addObject(new float[] {-150, -80, 350});
+        monkeys.rotateOneBy(115,3);
     }
 
     public void initializeDoorCoordinates() {
@@ -310,16 +249,9 @@ public class FirstRoom extends BaseRoom {
 
     public void initializeBallsCoordinates() {
         float[] monkey;
-        monkey = monkeys1.getObject(0);
-        balls1.addObject(new float[]{monkey[0], monkey[1] - 10, monkey[2]});
-
-        monkey = monkeys2.getObject(0);
-        balls2.addObject(new float[]{monkey[0], monkey[1] - 10, monkey[2]});
-
-        monkey = monkeys3.getObject(0);
-        balls3.addObject(new float[]{monkey[0], monkey[1] - 10, monkey[2]});
-
-        monkey = monkeys4.getObject(0);
-        balls4.addObject(new float[]{monkey[0], monkey[1] - 10, monkey[2]});
+        for(int i=0; i<monkeys.getSize(); i++){
+            monkey = monkeys.getObject(i);
+            balls.addObject(new float[]{monkey[0], monkey[1] - 10, monkey[2]});
+        }
     }
 }

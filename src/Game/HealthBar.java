@@ -1,3 +1,5 @@
+//Viki Burshtein 328684642
+//Tomer Paz 315311365
 package Game;
 
 import com.jogamp.opengl.util.texture.Texture;
@@ -12,7 +14,7 @@ import java.io.IOException;
 
 public class HealthBar {
     private Texture texture100, texture50, texture0, healthBarTexture;
-    private float material[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    private float material[] = {1f, 1f, 1f, 1f};
 
     public HealthBar() {
         setHealthBar();
@@ -31,6 +33,11 @@ public class HealthBar {
     }
 
     public void drawHealthBar(GL2 gl, int life) {
+
+        //light
+        gl.glDisable(GL2.GL_LIGHTING);
+        gl.glDisable(GL2.GL_LIGHT0);
+
         if(life == 2){
             healthBarTexture = texture100;
         } else if(life == 1){
@@ -39,10 +46,9 @@ public class HealthBar {
             healthBarTexture = texture0;
         }
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
 
         healthBarTexture.bind(gl);
-        gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, material, 0);
 
         gl.glBegin(GL2GL3.GL_QUADS);
 
@@ -58,7 +64,10 @@ public class HealthBar {
         gl.glTexCoord2f(0, 1);
         gl.glVertex2f(-0.25f, 0.6f);
 
-
         gl.glEnd();
+
+        //light
+        gl.glEnable(GL2.GL_LIGHTING);
+        gl.glEnable(GL2.GL_LIGHT0);
     }
 }
