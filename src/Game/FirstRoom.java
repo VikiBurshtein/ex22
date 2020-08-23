@@ -208,7 +208,7 @@ public class FirstRoom extends BaseRoom {
         float xAxis[] = {1, 0, 0};
         float yAxis[] = {0, 1, 0};
         float zAxis[] = {0, 0, -1};
-        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0, 0, 395);
+        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0, 0, 390);
     }
 
     public void initializeMonkeysCoordinates() {

@@ -210,7 +210,6 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public void rise() {
         gobletRises = true;
     }
-
     //by index
     public static void getSpikesUp(int index) {
         spikesForDrawing.moveOneObjectUpByIndex(index, -100);

@@ -269,7 +269,7 @@ public class FourthRoom extends BaseRoom {
     }
 
     public void initializeSpikesCoordinates(){
-        float spikesHeightToDraw = -110;
+        float spikesHeightToDraw = -400;
         spikesForDrawing.addObject(new float[]{-100, spikesHeightToDraw, 350});
         spikesForDrawing.addObject(new float[]{100, spikesHeightToDraw, 350});
         spikesForDrawing.addObject(new float[]{-50, spikesHeightToDraw, 250});
