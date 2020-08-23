@@ -120,20 +120,36 @@ public class SecondRoom extends BaseRoom {
         float xAxis[] = {0.02f,0,-1f};
         float yAxis[] = {0,1,0};
         float zAxis[] = {-1f,0,-0.02f};
-        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 0,-50,395);
+        player = new PlayerLogic(stepQuanity, camAngle, xAxis, yAxis, zAxis, 198,-50,387);
     }
 
     public void loadObjects() {
         pathModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/path.obj");
         sharkModel = new WavefrontObjectLoader_DisplayList(roomName + "/objects/shark.obj");
         initializeCoinsCoordinates();
+        initializeWallsCoordinates();
         initializePathsCoordinates();
         initializeSharksCoordinates();
         initializeDoorCoordinates();
     }
 
     public void initializeDoorCoordinates() {
-        doors.addObject(new float[]{0, -10, 0});
+        doors.addObject(new float[]{0, -10, -400});
+    }
+
+    public void initializeWallsCoordinates() {
+        leftWall = new ObjectsForCollision();
+        rightWall = new ObjectsForCollision();
+        ceiling = new ObjectsForCollision();
+        floor = new ObjectsForCollision();
+        frontWall = new ObjectsForCollision();
+        backWall = new ObjectsForCollision();
+        leftWall.addObject(new float[]{-200, 0, 0});
+        rightWall.addObject(new float[]{200, 0, 0});
+        ceiling.addObject(new float[]{100, 0, 0});
+        floor.addObject(new float[]{-100, 0, 0});
+        frontWall.addObject(new float[]{-400, 0, 0});
+        backWall.addObject(new float[]{400, 0, 0});
     }
 
     public void initializePathsCoordinates() {
@@ -180,11 +196,17 @@ public class SecondRoom extends BaseRoom {
 
     @Override
     public void updateObjectsList() {
-        //<Coins><Paths><Door>
+        //<Coins><Paths><Door><Left wall><Right Wall><Ceiling>Floor><Back Wall><Front wall>
         objects = new ArrayList() {{
             add(coins.getObjectsList());
             add(paths.getObjectsList());
             add(doors.getObjectsList());
+            add(leftWall.getObjectsList());
+            add(rightWall.getObjectsList());
+            add(ceiling.getObjectsList());
+            add(floor.getObjectsList());
+            add(backWall.getObjectsList());
+            add(frontWall.getObjectsList());
         }};
     }
 

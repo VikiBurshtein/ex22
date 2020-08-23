@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public PlayerLogic player;
+    private static boolean didNotEnd = true;
     public float stepQuanity = 0.2f;
     public float camAngle = 2;
     public HealthBar healthBar;
@@ -50,14 +52,14 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     public static Frame frame;
     protected boolean immune = false;
     public ObjectsForCollision coins = new ObjectsForCollision();
-    public List<Boolean> coinsBoolean = new ArrayList<>();
+    public static List<Boolean> coinsBoolean = new ArrayList<>();
     public boolean gobletRises = false;
     public boolean showFlash = false;
 
     public ObjectsForCollision leftWall, rightWall, ceiling, floor, frontWall, backWall;
     public ObjectsForCollision goblets = new ObjectsForCollision();
     public ObjectsForCollision tables = new ObjectsForCollision();
-    public ObjectsForCollision spikesForDrawing = new ObjectsForCollision();
+    public static ObjectsForCollision spikesForDrawing = new ObjectsForCollision();
     public ObjectsForCollision spikesForCollision = new ObjectsForCollision();
 
     public String roomName;
@@ -193,11 +195,11 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     //remove coin by index
-    public void removeCoin(int index) {
+    public static void removeCoin(int index) {
         coinsBoolean.set(index, false);
     }
 
-    public boolean checkIfCoinExists(int index) {
+    public static boolean checkIfCoinExists(int index) {
         if (coinsBoolean.get(index) == true) {
             return true;
         }
@@ -210,7 +212,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     //by index
-    public void getSpikesUp(int index) {
+    public static void getSpikesUp(int index) {
         spikesForDrawing.moveOneObjectUpByIndex(index, -100);
     }
 
@@ -503,7 +505,13 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
     }
 
     public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+            exit(true);
+        }
+        if(!didNotEnd)
+            return;
         boolean hit = false;
+        boolean startSecond = false;
         float[] future;
         boolean moved = false;
         int instruction = 0;
@@ -515,52 +523,58 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             case KeyEvent.VK_W:
                 moved = true;
                 WIsPressed = true;
-                future = player.getFuturePlaceOfMove(0, 0, 11);
-                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
+                future = player.getFuturePlaceOfMove(0,0,11);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_S:
                 moved = true;
                 SIsPressed = true;
-                future = player.getFuturePlaceOfMove(0, 0, -11);
-                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
+                future = player.getFuturePlaceOfMove(0,0,-11);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_D:
                 moved = true;
                 DIsPressed = true;
-                future = player.getFuturePlaceOfMove(11, 0, 0);
-                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
+                future = player.getFuturePlaceOfMove(11,0,0);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_A:
                 moved = true;
                 AIsPressed = true;
-                future = player.getFuturePlaceOfMove(-11, 0, 0);
-                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
+                future = player.getFuturePlaceOfMove(-11,0,0);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
                 break;
             case KeyEvent.VK_E:
                 moved = true;
                 EIsPressed = true;
-                if (roomName.equals("secondRoom")) {
-                    break;
+                future = player.getFuturePlaceOfMove(0,11,0);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
+                if(roomName.equals("secondRoom")){
+                    instruction = 2;
                 }
-                future = player.getFuturePlaceOfMove(0, 11, 0);
-                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
                 break;
             case KeyEvent.VK_Q:
                 moved = true;
                 QIsPressed = true;
-                if (roomName.equals("secondRoom")) {
-                    break;
+                future = player.getFuturePlaceOfMove(0,-11,0);
+                instruction = CollisionCheck.isHitAndInstruction(objects,future,roomName);
+                if(roomName.equals("secondRoom")){
+                    instruction = 2;
                 }
-                future = player.getFuturePlaceOfMove(0, -11, 0);
-                instruction = CollisionCheck.isHitAndInstruction(objects, future, roomName);
                 break;
             //camera movement:
             case KeyEvent.VK_I:
                 IIsPressed = true;
+                if(roomName.equals("secondRoom")){
+                    break;
+                }
                 player.camMove(1, "X");
                 break;
             case KeyEvent.VK_K:
                 KIsPressed = true;
+                if(roomName.equals("secondRoom")){
+                    break;
+                }
                 player.camMove(-1, "X");
                 break;
             case KeyEvent.VK_L:
@@ -573,10 +587,16 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
                 break;
             case KeyEvent.VK_O:
                 OIsPressed = true;
+                if(roomName.equals("secondRoom")){
+                    break;
+                }
                 player.camMove(-1, "Z");
                 break;
             case KeyEvent.VK_U:
                 UIsPressed = true;
+                if(roomName.equals("secondRoom")){
+                    break;
+                }
                 player.camMove(1, "Z");
                 break;
             case KeyEvent.VK_F1:
@@ -585,78 +605,122 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
             default:
                 break;
         }
-        if (moved) {
+        if(moved){
+//            System.out.println("X: " + player.pos[0] + " Y: " + player.pos[1] + " Z: " + player.pos[2]);
+//            System.out.println("WhatToDo = " + instruction);
             float[] move = new float[3];
-            if (WIsPressed) {
+            if(WIsPressed){
                 move[0] = 0;
                 move[1] = 0;
                 move[2] = 11;
-            } else if (SIsPressed) {
+            }
+            else if(SIsPressed){
                 move[0] = 0;
                 move[1] = 0;
                 move[2] = -11;
-            } else if (DIsPressed) {
+            }
+            else if(DIsPressed){
                 move[0] = 11;
                 move[1] = 0;
                 move[2] = 0;
-            } else if (AIsPressed) {
+            }
+            else if(AIsPressed){
                 move[0] = -11;
                 move[1] = 0;
                 move[2] = 0;
-            } else if (EIsPressed) {
+            }
+            else if(EIsPressed){
                 move[0] = 0;
                 move[1] = 11;
                 move[2] = 0;
-            } else if (QIsPressed) {
+            }
+            else if(QIsPressed){
                 move[0] = 0;
                 move[1] = -11;
                 move[2] = 0;
             }
-            if (instruction == 0) {
-                player.move(move[0], move[1], move[2]);
-            } else if (instruction == 1) {
-
-            } else if (instruction == 2) {
-
-            } else if (instruction == 3) {
-
-            } else if (instruction == 4) {
-
-            } else if (instruction == 5) {
-
-            } else if (instruction == 6) {
-
-            } else if (instruction == 7) {
-
-            } else if (instruction == 8) {
-
-            } else if (instruction == 9) {
-
+            if(instruction == 0){
+                player.move(move[0],move[1],move[2]);
+            }
+            else if(instruction == 1){
+                advance();
+            }
+            else if(instruction == 2){
+                //just do - nothing.
+            }
+            else if(instruction == 3){
+                changeScore("addCoin");
+                player.move(move[0],move[1],move[2]);
+            }
+            else if(instruction == 4 || instruction == 8){
+                hit = true;
+                //block so dont move
+            }
+            else if(instruction == 5 || instruction == 6){
+                hit = true;
+                player.move(move[0],move[1],move[2]);
+            }
+            else if(instruction == 7){
+                hit = true;
+                startSecond = true;
+            }
+            else if(instruction == 9){
+                rise();
+                didNotEnd = false;
             }
         }
-        if (hit && !immune) {
+        if(hit && !immune){
             immune = true;
-            if (changeBar("damage")) {
+            startFlash();
+            new Timer().schedule(
+                    new java.util.TimerTask() {
+                        @Override
+                        public void run() {
+                            stopFlash();
+                        }
+                    },
+                    1500
+            );
+            if(changeBar("damage")){
                 GameScore.reset();
-                Loader.runNewRoom("firstRoom");
+                new Timer().schedule(
+                        new java.util.TimerTask() {
+                            @Override
+                            public void run() {
+                                Loader.runNewRoom("firstRoom");
+                            }
+                        },
+                        2000
+                );
                 return;
             }
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(7000);
-                        immune = false;
-                    } catch (InterruptedException interruptedException) {
-                        interruptedException.printStackTrace();
-                    }
-                }
-            });
-            thread.run();
+            if(startSecond){
+                new Timer().schedule(
+                        new java.util.TimerTask() {
+                            @Override
+                            public void run() {
+                                Loader.runNewRoom("secondRoom");
+                            }
+                        },
+                        2000
+                );
+                return;
+            }
+            new Timer().schedule(
+                    new java.util.TimerTask() {
+                        @Override
+                        public void run() {
+                            immune = false;
+                        }
+                    },
+                    7000
+            );
         }
     }
 
     public void keyReleased(KeyEvent e) {
+        if(!didNotEnd)
+            return;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
                 WIsPressed = false;
@@ -765,7 +829,7 @@ abstract public class BaseRoom extends KeyAdapter implements GLEventListener {
         objects = null;
     }
 
-    public void advance() {
+    public void advance(){
         if (roomName.equals("firstRoom")) {
             Loader.runNewRoom("secondRoom");
         } else if (roomName.equals("secondRoom")) {

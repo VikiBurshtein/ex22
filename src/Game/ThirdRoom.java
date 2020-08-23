@@ -122,7 +122,7 @@ public class ThirdRoom extends BaseRoom {
     }
 
     public void initializeDoorCoordinates() {
-        doors.addObject(new float[]{0, -10, 0});
+        doors.addObject(new float[]{0, -10, -400});
     }
 
     public void initializeWallsCoordinates() {
